@@ -1,13 +1,13 @@
 interface Props {
-  canvasRef?: HTMLCanvasElement;
+  ref?: HTMLCanvasElement;
 }
 
-export function Clock({ canvasRef }: Props) {
+export function Clock(props: Props) {
   const hourMarkers = Array.from({ length: 12 }, (_, i) => i + 1);
   const oneHourOffset = 30;
   return (
     <div class="relative h-100 w-100 rounded-full border border-slate-200 bg-linear-to-br from-slate-50 to-slate-200">
-      <canvas class="h-full w-full" ref={canvasRef} />
+      <canvas class="h-full w-full" ref={props.ref} />
 
       <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
         {/* minute/second ticks */}

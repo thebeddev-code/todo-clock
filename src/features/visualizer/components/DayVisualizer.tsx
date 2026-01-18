@@ -62,10 +62,15 @@ export function DayVisualizer({
   });
   createEffect(() => {
     const canvas = canvasRef;
-    if (!canvas) return;
-
+    if (!canvas) {
+      console.warn("Missing ref to clock canvas")
+      return;
+    };
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      console.log("Failed to get clock canvas context")
+      return
+    };
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
 
@@ -145,11 +150,6 @@ export function DayVisualizer({
     lastClickTimeRef = currentClickTime;
   }
 
-  const clock = (
-    <>
-      <Clock canvasRef={canvasRef} />
-    </>
-  );
   const colorWheelDegrees = createMemo(() =>
     clockHandleDegrees().totalAngle > 360 * 2
       ? 0
@@ -213,22 +213,20 @@ export function DayVisualizer({
                 if (!total) return
                 if (!createTodoDegrees().start) return;
                 // if (total < createTodoDegrees().start ?? 0) return;
-                //
                 setCreateTodoDegrees(({ start }) => ({
                   start,
                   end: total,
                 }));
-                console.log(total)
               }}
               followMouse={true}
               variant="minimal"
               controlled={false}
             >
-              <Clock canvasRef={canvasRef} />
+              <Clock ref={canvasRef} />
             </ClockHandle>
           </Show>
           <Show when={typeof createTodoDegrees().start !== "number"}>
-            <Clock canvasRef={canvasRef} />
+            <Clock ref={canvasRef} />
           </Show>
         </ClockHandle>
         <ColorWheel
