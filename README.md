@@ -1,7 +1,46 @@
-# Tauri + Solid + Typescript
+# Todo clock
+A To-Do app that makes todos management feel more intuitive and natural, by visualizing your todos on a dynamic clock graph. 
 
-This template should help get you started developing with Tauri, Solid and Typescript in Vite.
+## Features
 
-## Recommended IDE Setup
+- [ ] Visualization of todos on clock-graph
+- [ ] Todo CRUD
+- [ ] Responsive design works on desktop and mobile
+- [ ] Persisted state using local storage
 
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+## Prerequisites
+
+- Rust
+- Rust analyzer
+- Node.js ≥ 18
+- pnpm
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/thebeddev-code/todo-clock.git
+cd todo-clock
+
+# Install dependencies (choose your package manager)
+pnpm install      # or yarn install, npm install, bun install
+```
+
+## Getting Started
+
+```bash
+# Start the app
+pnpm tauri dev      # or yarn dev, npm dev, bun dev
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/your-feature`)
+3. Commit your changes (`git commit -m "Add feature"`)
+4. Push to the branch (`git push origin feature/your-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the **GPL License**. See `LICENSE` for details.
