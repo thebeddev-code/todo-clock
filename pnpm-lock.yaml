@@ -26,6 +26,9 @@ importers:
       '@tauri-apps/plugin-sql':
         specifier: ~2.3.1
         version: 2.3.1
+      '@tscircuit/routematch':
+        specifier: ^1.0.1
+        version: 1.0.1(typescript@5.6.3)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -703,6 +706,12 @@ packages:
 
   '@tauri-apps/plugin-sql@2.3.1':
     resolution: {integrity: sha512-iNgHnFIR+jRkx9INKVKepzMlxXtNkJUaWuhagFjT4dOttPaNyRnVHgwTjpqZhyVjiklDh2UdEPAJkQKiCPAekw==}
+
+  '@tscircuit/routematch@1.0.1':
+    resolution: {integrity: sha512-ig48wYm4vUposU/5scwHBFg+FzDa7At66H7x7ejI2bsF0L62rKrwK5QCF5uXmOApJx1jIc4Os7RIz0/v9Z89Mw==}
+    engines: {bun: '>=1.0.0'}
+    peerDependencies:
+      typescript: '>=4.5.0'
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -1620,6 +1629,10 @@ snapshots:
   '@tauri-apps/plugin-sql@2.3.1':
     dependencies:
       '@tauri-apps/api': 2.9.1
+
+  '@tscircuit/routematch@1.0.1(typescript@5.6.3)':
+    dependencies:
+      typescript: 5.6.3
 
   '@types/babel__core@7.20.5':
     dependencies:
