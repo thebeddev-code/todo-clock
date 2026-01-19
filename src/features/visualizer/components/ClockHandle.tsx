@@ -50,15 +50,16 @@ export function ClockHandle({
   })
   const [mouseDown, setMouseDown] = createSignal(followMouse);
   const [mouseEnter, setMouseEnter] = createSignal(followMouse);
-  const { currentAngle, totalAngle } = value();
-  const t = controlled ? totalAngle : handleDegrees().total;
-  const time = formatDate(
-    addHours(
-      set(new Date(), { hours: 0, minutes: 0, seconds: 0 }),
-      t / DEGREES_PER_HOUR,
-    ),
-    "p",
-  );
+  const time = createMemo(() => {
+    const t = controlled ? value().totalAngle : handleDegrees().total;
+    return formatDate(
+      addHours(
+        set(new Date(), { hours: 0, minutes: 0, seconds: 0 }),
+        t / DEGREES_PER_HOUR,
+      ),
+      "p",
+    )
+  });
   const showTooltip = true;
   // Handle resetting the last raw angle after clock handle reset
 
@@ -192,7 +193,7 @@ export function ClockHandle({
                 }}
               >
                 <span class="whitespace-nowrap text-xs text-muted-foreground font-medium">
-                  {time}
+                  {time()}
                 </span>
               </div>
             )}
