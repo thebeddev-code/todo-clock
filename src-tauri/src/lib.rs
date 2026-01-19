@@ -30,11 +30,10 @@ pub fn run() {
         )",
         kind: MigrationKind::Up,
     }
-]
-    ;
+];
 
     tauri::Builder::default()
-        .manage({ AppData { db_pool } })
+
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:todos.db", migrations)
