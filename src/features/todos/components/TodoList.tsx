@@ -2,13 +2,9 @@
 import { Plus } from "lucide-solid";
 import { Button } from "~/lib/components/ui/button";
 import { Todo } from "~/lib/types";
-// import { TodoExpandedView } from "./TodoExpandedView";
+import { TodoExpandedView } from "./TodoExpandedView";
 import { TodoItem } from "./TodoItem";
 import { Accessor, createMemo, createSignal, For, Show } from "solid-js";
-
-
-
-
 
 export function TodoList({ todos }: { todos: Accessor<Todo[]> }) {
   // const changeFormType = useTodoForm((state) => state.changeFormType);
@@ -25,10 +21,10 @@ export function TodoList({ todos }: { todos: Accessor<Todo[]> }) {
           onClick={() => setExpandedTodoId(null)}
           class="fixed inset-0 z-20 flex items-center justify-center bg-black/40"
         >
-          {/* <TodoExpandedView */}
-          {/*   todo={expandedTodo} */}
-          {/*   onExpandedViewClose={() => setExpandedTodoId(null)} */}
-          {/* /> */}
+          <TodoExpandedView
+            todo={expandedTodo() as Todo}
+            onExpandedViewClose={() => setExpandedTodoId(null)}
+          />
         </div>
       </Show>
       <For each={todos()}>
