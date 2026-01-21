@@ -8,6 +8,7 @@ import { Todo } from "~/lib/types";
 import { createAsync } from "@solidjs/router";
 import { getTodos } from "~/features/todos/api/getTodos";
 import { TodoList } from "~/features/todos/components/TodoList";
+import { TodoForm } from "~/features/todos/components/TodoForm";
 
 export default function Dashboard() {
   const todos = createAsync(() => getTodos()) as Accessor<Todo[]>;
@@ -20,9 +21,7 @@ export default function Dashboard() {
   // const changeFormType = useTodoForm((state) => state.changeFormType);
   return (
     <div class="flex">
-      <div class="w-50 h-dvh">
-        Kinda sidebar
-      </div>
+      <div class="w-50 h-dvh">Kinda sidebar</div>
       <main class="flex-1 h-dvh grid grid-cols-2">
         {/* {status === "success" && todos && ( */}
         <Show when={todos()}>
@@ -51,7 +50,10 @@ export default function Dashboard() {
         {/* )} */}
         {/* {status === "success" && todos && <TodoList todos={todos} />} */}
         {/* <TodoFormWrapper /> */}
+        <div class="flex w-dvw absolute z-50 right-0">
+          <TodoForm></TodoForm>
+        </div>
       </main>
-    </div >
-  )
+    </div>
+  );
 }
