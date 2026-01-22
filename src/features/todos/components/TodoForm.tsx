@@ -7,13 +7,18 @@ import { Select } from "@kobalte/core/select";
 import { Separator } from "@kobalte/core/separator";
 import { ColorSwatch } from "@kobalte/core/color-swatch";
 import { ColorWheel } from "@kobalte/core/color-wheel";
-import { format, set } from "date-fns";
+import { format, formatDate, set } from "date-fns";
 import { TagsField } from "~/lib/components/ui/form/tags-field";
 import { Todo } from "~/lib/types";
-import { DEFAULT_TAGS } from "../lib/constants";
+import { DEFAULT_TAGS, WEEKDAYS } from "../lib/constants";
+
+
+type FormData = CreateTodoPayload & {
+  monthlyDate: string
+}
 
 export function TodoForm() {
-  const [formData, setFormData] = createStore<CreateTodoPayload>({
+  const [formData, setFormData] = createStore<FormData>({
     title: "",
     isRecurring: false,
     tags: [],
@@ -26,6 +31,7 @@ export function TodoForm() {
     due: new Date().toISOString(),
     startsAt: new Date().toString(),
     recurrenceRule: "",
+    monthlyDate: new Date().toString()
   });
 
   const [formErrors, setFormErrors] = createStore<Partial<Todo>>();
@@ -56,11 +62,44 @@ export function TodoForm() {
       }));
     };
   }
+
+  const tagSuggestions = createMemo(() => {
+    const tags = formData.tags.map((t) => t.toLowerCase().trim());
+    if (tags.includes("everyday") || tags.includes("monthly")) return []
+    if (WEEKDAYS.find((w) => tags.includes(w))) return WEEKDAYS.filter((w) => !tags.includes(w));
+    return DEFAULT_TAGS;
+  })
+
   createEffect(() => {
-    console.log(formData.tags);
-  });
+    const currentMonthly = new Date(formData.monthlyDate);
+    function getRecurrenceRule(tags: string[]) {
+      const lowerCaseTags: string[] = tags.map((v: string) =>
+        v.toLowerCase(),
+      );
+      if (lowerCaseTags.includes("everyday")) return "everyday";
+      const weekly = lowerCaseTags.filter((v) => WEEKDAYS.includes(v));
+      if (weekly.length > 0) return `weekly=${weekly.join(",")}`;
+      if (lowerCaseTags.includes("weekly"))
+        return `weekly=${WEEKDAYS[new Date().getDay() - 1]}`;
+      if (lowerCaseTags.includes("monthly")) {
+        const monthlyDate = formatDate(
+          currentMonthly ? new Date(currentMonthly) : new Date(),
+          "yyyy-MM-dd",
+        );
+        return `monthly=${monthlyDate}`;
+      }
+
+      return "";
+    }
+    const prefix = "rrule:"
+    const recurrenceRule = `${prefix}${getRecurrenceRule(formData.tags)}`.toLowerCase();
+    console.log(recurrenceRule)
+    setFormData((data) => ({ ...data, recurrenceRule, isRecurring: recurrenceRule !== prefix }))
+  })
+
   return (
     <form
+      autocomplete="off"
       onSubmit={handleSubmit}
       class="flex flex-col gap-6 bg-white p-8 rounded-xl shadow-sm border border-slate-200 w-1/2 mx-auto"
     >
@@ -220,14 +259,35 @@ export function TodoForm() {
           />
         </TextField>
       </div>
+
       {/* Tags */}
       <TagsField
         value={formData.tags}
         onChange={createFieldChangeHandler("tags")}
         label="Tags"
-        suggestions={DEFAULT_TAGS}
+        suggestions={tagSuggestions()}
         error={createMemo(() => formErrors.tags?.[0] ?? "")()}
       />
+
+      <Show when={formData.recurrenceRule?.includes("monthly")}>
+        <TextField
+          class="flex flex-col gap-1 md:col-span-2"
+          value={formData.monthlyDate}
+          onChange={createFieldChangeHandler("monthlyDate")}
+        >
+          <TextField.Label class="text-sm font-medium text-slate-700">
+            Monthly date
+          </TextField.Label>
+          <TextField.Input
+            type="date"
+            placeholder="Monthly date"
+            class="px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+          />
+        </TextField>
+
+
+
+      </Show>
 
       <button
         type="submit"
