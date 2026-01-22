@@ -5,10 +5,11 @@ import { Plus, X } from "lucide-solid";
 import { Button } from "@kobalte/core/button";
 
 /*
- * TODO: Improve visual styles e.g the clear button
- * TODO: Display completion hint on the input
- * TODO: Display a hint after user has tried to enter a duplicate tag
+ * DONE: Improve visual styles e.g the clear button
+ * DONE: Display autocompletion hint on the input
+ * DONE: Display a hint after user has tried to enter a duplicate tag
  * TODO: Do a proper render of error message
+ *
  * */
 
 interface Props {
@@ -23,16 +24,25 @@ interface Props {
 
 export function TagsField(props: Props) {
   const { maxTags = 20, maxTagLength = 255 } = props;
-
+  // Used to hide suggestions and
   const [hideSuggestions, setHideSuggestions] = createSignal(false);
   const [inputValue, setInputValue] = createSignal("");
+  const [duplicateTagIndex, setDuplicateTagIndex] = createSignal(-1);
+
+  // Filter out suggestions
   const suggestions = createMemo(() => {
     if (!inputValue()) return [];
     if (!Array.isArray(props.suggestions)) return [];
-    // beatiful line
-    return props.suggestions.filter((v: string) =>
-      v.toLowerCase().trim().includes(inputValue().toLowerCase().trim()),
+    const format = (s: string) => s.toLowerCase().trim();
+
+    // NOTE: Probably not the best way to do it. But it works! Kinda...
+    // NOTE: Improve? Maybe?
+    const filteredSuggestions = props.suggestions.filter((v: string) =>
+      format(v).includes(format(inputValue())),
     );
+    return filteredSuggestions.sort((s) => {
+      return format(s).startsWith(format(inputValue())) ? -1 : 1;
+    });
   });
 
   const addTag = (
@@ -46,9 +56,12 @@ export function TagsField(props: Props) {
     const trimmedTag = tag.trim();
     if (!trimmedTag || trimmedTag.length > maxTagLength) return;
 
+
+    const duplicateTagIndex = currentTags.findIndex((t) => t === trimmedTag)
     // Skip duplicates
-    if (currentTags.includes(trimmedTag)) {
+    if (duplicateTagIndex !== -1) {
       setInputValue("");
+      setDuplicateTagIndex(duplicateTagIndex);
       return;
     }
 
@@ -61,6 +74,8 @@ export function TagsField(props: Props) {
     currentTags: string[],
     onChange: (tags: string[]) => void,
   ) => {
+    // Skipping since tags is empty anyway
+    if (currentTags.length === 0) return;
     const newTags = currentTags.filter((_, i) => i !== index);
     onChange(newTags);
   };
@@ -71,13 +86,17 @@ export function TagsField(props: Props) {
       e.preventDefault();
       addTag(inputValue(), currentTags, onChange);
     }
-    if (e.key === "Backspace" && !inputValue() && currentTags.length > 0) {
+    if (e.key === "Backspace" && !inputValue()) {
       removeTag(currentTags.length - 1, currentTags, onChange);
     }
+
     if (e.key === "Escape") {
       setHideSuggestions(true);
     }
+
     const [first] = suggestions() ?? [];
+    // In case there is a suggestion available
+    // We want to use that to autocomplete tag creation
     if (e.key === "Tab" && first && inputValue() !== first) {
       e.preventDefault();
       addTag(first, currentTags, onChange);
@@ -94,10 +113,19 @@ export function TagsField(props: Props) {
     props.onChange([]);
     setInputValue("");
   }
-  // reset hideSuggestions
+
+  // Reset hideSuggestions
   createEffect(() => {
     if (!inputValue()) setHideSuggestions(false);
   });
+  // Reset duplicate tag index to hide the tag error state 
+  createEffect(() => {
+    if (duplicateTagIndex() === -1) return
+    const timeoutId = setTimeout(() => {
+      setDuplicateTagIndex(-1)
+    }, 400)
+    return () => clearTimeout(timeoutId)
+  })
 
   return (
     <TextField
@@ -107,15 +135,20 @@ export function TagsField(props: Props) {
       class={cn(
         "relative min-h-10 p-2 rounded-md flex flex-wrap gap-2 items-center",
         "bg-background border border-border hover:border-primary/50 transition-colors",
+        "text-gray-800",
       )}
       validationState={props.error ? "invalid" : "valid"}
       aria-autocomplete="none"
     >
-      {" "}
+      {/* Tags  */}
       <div class="flex flex-wrap gap-2">
         <For each={props.value}>
           {(tag, i) => (
-            <span class="select-none flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary border border-primary/20 text-sm">
+            <span class={
+              cn("select-none flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary",
+                " border border-primary/20 text-sm", {
+                "border border-red-400": duplicateTagIndex() === i(),
+              })} >
               {tag}
               <button
                 onClick={createRemoveTagClickHandler(i())}
@@ -128,27 +161,55 @@ export function TagsField(props: Props) {
           )}
         </For>
       </div>
+
       <div class="flex-1 flex gap-2 items-center">
-        <TextField.Input
-          aria-label="Todo tags"
-          placeholder="Add tag..."
-          class="flex-1 px-2 py-1 rounded border border-transparent focus:outline-none focus:ring-0 text-sm"
-        />
+        {/* Input container */}
+        <div class="flex-1 relative flex overflow-y-scroll">
+          {/* Auto complete hint  */}
+          {/* TODO: Autocomplete sucks */}
+          <Show when={!hideSuggestions()}>
+            <span class="absolute px-2 p-1 text-gray-300 text-sm select-none">
+              {suggestions()[0] ?? ""}
+            </span>
+          </Show>
+          {/* Tags input  */}
+          <TextField.Input
+            aria-label="Todo tags"
+            placeholder="Add tag..."
+            class="relative z-10 flex-1 px-2 py-1 rounded bg-transparent border-none focus:outline-none focus:ring-0 text-sm"
+          />
+        </div>
+
+        {/* Buttons */}
         <Button
+          class="hover:bg-blue-400 hover:text-white p-1 rounded-sm transition-colors duration-200"
           onClick={() => addTag(inputValue(), props.value, props.onChange)}
         >
           Add
         </Button>
-        <Button onClick={handleClearTags}>Clear</Button>
+        <Button
+          class="hover:bg-destructive/70 hover:text-white p-1 rounded-sm transition-colors duration-200"
+          onClick={handleClearTags}
+        >
+          Clear
+        </Button>
         <TextField.ErrorMessage>{props.error}</TextField.ErrorMessage>
       </div>
+
+      {/* Suggestions */}
       <Show when={suggestions().length > 0 && !hideSuggestions()}>
         <div class="absolute top-full left-0 mt-1 w-full min-w-30 max-h-60 overflow-y-auto bg-white rounded-md shadow-lg border border-gray-200 z-50">
           <For each={suggestions()}>
-            {(s) => (
+            {(s, i) => (
               <span
                 onClick={() => addTag(s, props.value, props.onChange)}
-                class="block px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer transition-colors duration-150"
+                class={cn(
+                  "block px-3 py-2 text-sm text-gray-700",
+                  "hover:bg-blue-50 cursor-pointer transition-colors duration-150",
+                  {
+                    "bg-blue-200": i() === 0,
+                  },
+                )}
               >
                 {s}
               </span>
