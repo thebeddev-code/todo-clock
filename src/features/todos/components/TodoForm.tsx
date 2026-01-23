@@ -2,18 +2,26 @@ import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import { CreateTodoPayload } from "~/lib/schemas/todo.schema";
 import { createStore } from "solid-js/store";
 import { TextField } from "@kobalte/core/text-field";
-import { Checkbox } from "@kobalte/core/checkbox";
 import { Select } from "@kobalte/core/select";
-import { Separator } from "@kobalte/core/separator";
 import { ColorSwatch } from "@kobalte/core/color-swatch";
-import { ColorWheel } from "@kobalte/core/color-wheel";
-import { format, formatDate, set } from "date-fns";
+import { format, formatDate, parse, set } from "date-fns";
 import { TagsField } from "~/lib/components/ui/form/tags-field";
 import { Todo } from "~/lib/types";
 import { DEFAULT_TAGS, WEEKDAYS } from "../lib/constants";
+import { Color, parseColor } from "@kobalte/core/colors";
+import { ColorSlider } from "@kobalte/core/color-slider";
 
 
-type FormData = CreateTodoPayload & {
+
+/*
+ * TODO: Sync starts at and due fields when setting starts at field
+ * DONE: Better color input
+ * TODO: Form errors
+ *
+ * */
+
+type FormData = Omit<CreateTodoPayload, "color"> & {
+  color: Color,
   monthlyDate: string
 }
 
@@ -27,23 +35,25 @@ export function TodoForm() {
     priority: "low",
     status: "pending",
     updatedAt: new Date().toISOString(),
-    color: "black",
+    color: parseColor("hsl(80, 100%, 50%)"),
     due: new Date().toISOString(),
     startsAt: new Date().toString(),
     recurrenceRule: "",
     monthlyDate: new Date().toString()
   });
 
-  const [formErrors, setFormErrors] = createStore<Partial<Todo>>();
+  const [formErrors, setFormErrors] = createStore<Partial<Todo>>({});
+  const [formTouchedFields, setFormTouchedFields] = createStore<Partial<Record<keyof Todo, boolean>>>({});
+
   function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     console.log(formData);
   }
-  type ValueType<Key extends keyof CreateTodoPayload> = CreateTodoPayload[Key];
-  function createFieldChangeHandler<Key extends keyof CreateTodoPayload>(
-    fieldName: keyof CreateTodoPayload,
+  // TODO: Replace with FormData type
+  function createFieldChangeHandler<Key extends keyof FormData>(
+    fieldName: keyof FormData
   ) {
-    return (value: CreateTodoPayload[Key]) =>
+    return (value: FormData[Key]) =>
       setFormData((data) => ({
         ...data,
         [fieldName]: value,
@@ -174,13 +184,12 @@ export function TodoForm() {
         </TextField>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Priority Select */}
+      {/* TODO: Render on todo update  */}
+      <Show when={false}>
         <Select
-          options={["low", "medium", "high"]}
-          value={formData.priority}
-          onChange={createFieldChangeHandler("priority")}
-          placeholder="Select priority"
+          options={["pending", "in-progress", "completed"]}
+          value={formData.status}
+          placeholder="Select status"
           itemComponent={(props) => (
             <Select.Item
               item={props.item}
@@ -193,71 +202,96 @@ export function TodoForm() {
             </Select.Item>
           )}
         >
-          <Select.Label class="z-50 relative text-sm font-semibold text-slate-700 mb-1.5 block">
-            Priority
+          <Select.Label class="text-sm font-semibold text-slate-700 mb-1.5 block">
+            Status
           </Select.Label>
-          <Select.Trigger
-            aria-label="Priority"
-            class="flex items-center justify-between w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-          >
-            <Select.Value<string>>
-              {(state) => state.selectedOption()}
+          <Select.Trigger class="flex items-center justify-between w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+            <Select.Value class="text-sm">
+              {/* {state => state.selectedOption()} */}
             </Select.Value>
             <Select.Icon class="text-slate-400 text-xs">▼</Select.Icon>
           </Select.Trigger>
           <Select.Portal>
-            <Select.Content class="z-50 relative bg-white border border-slate-200 rounded-lg shadow-xl p-1 animate-in fade-in zoom-in-95 duration-100">
+            <Select.Content class="bg-white border border-slate-200 rounded-lg shadow-xl p-1">
               <Select.Listbox class="outline-none" />
             </Select.Content>
           </Select.Portal>
         </Select>
+      </Show>
 
-        {/* Status Select */}
-        <Show when={false}>
+
+      <div class="flex flex-wrap items-start gap-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+        {/* Priority Select */}
+        <div class="flex-1 min-w-50">
           <Select
-            options={["pending", "in-progress", "completed"]}
-            value={formData.status}
-            placeholder="Select status"
+            options={["low", "medium", "high"]}
+            value={formData.priority}
+            onChange={createFieldChangeHandler("priority")}
+            placeholder="Select priority"
             itemComponent={(props) => (
               <Select.Item
                 item={props.item}
-                class="flex items-center justify-between px-3 py-2 text-sm text-slate-700 cursor-pointer rounded-md outline-none focus:bg-indigo-50 focus:text-indigo-700"
+                class="flex items-center justify-between px-3 py-2 text-sm text-slate-700 
+                rounded-md cursor-pointer hover:bg-indigo-50 focus:bg-indigo-100 outline-none"
               >
-                <Select.ItemLabel>{props.item.rawValue}</Select.ItemLabel>
+                <Select.ItemLabel class="first-letter:uppercase">
+                  {props.item.rawValue}
+                </Select.ItemLabel>
                 <Select.ItemIndicator>
                   <span class="text-indigo-600">✓</span>
                 </Select.ItemIndicator>
               </Select.Item>
             )}
           >
-            <Select.Label class="text-sm font-semibold text-slate-700 mb-1.5 block">
-              Status
+            <Select.Label class="block text-sm font-semibold text-slate-800 mb-2">
+              Priority
             </Select.Label>
-            <Select.Trigger class="flex items-center justify-between w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
-              <Select.Value class="text-sm">
-                {/* {state => state.selectedOption()} */}
+            <Select.Trigger
+              aria-label="Priority"
+              class=" flex items-center justify-between w-full px-3 py-2 bg-white border 
+              border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 
+              outline-none transition-all"
+            >
+              <Select.Value<string> class="first-letter:uppercase">
+                {(state) => state.selectedOption() || "Select priority"}
               </Select.Value>
-              <Select.Icon class="text-slate-400 text-xs">▼</Select.Icon>
+              <Select.Icon class="text-slate-400">▼</Select.Icon>
             </Select.Trigger>
             <Select.Portal>
-              <Select.Content class="bg-white border border-slate-200 rounded-lg shadow-xl p-1">
+              <Select.Content class="z-50 bg-white border border-slate-200 rounded-lg shadow-lg p-1 animate-in fade-in zoom-in-95 duration-150">
                 <Select.Listbox class="outline-none" />
               </Select.Content>
             </Select.Portal>
           </Select>
-        </Show>
+        </div>
 
-        <Separator class="md:col-span-2 h-px bg-slate-200 my-2" />
-        {/* Color Picker (Using TextField input type color) */}
-        <TextField class="flex flex-col gap-1">
-          <TextField.Label class="text-sm font-medium text-slate-700">
-            Category Color
-          </TextField.Label>
-          <TextField.Input
-            type="color"
-            class="h-10 w-full rounded-md border border-slate-300 bg-transparent p-1 cursor-pointer"
-          />
-        </TextField>
+        {/* Color Picker */}
+        <div class="flex-1 min-w-62.5">
+          <ColorSlider
+            defaultValue={formData.color}
+            value={formData.color}
+            channel="hue"
+            onChange={createFieldChangeHandler("color")}
+          >
+            <div class="flex items-center justify-between mb-2">
+              <ColorSlider.Label class="text-sm font-semibold text-slate-800">
+                Color
+              </ColorSlider.Label>
+              <ColorSlider.ValueLabel class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded" />
+            </div>
+            <div class="flex items-center gap-3">
+              <ColorSwatch
+                class="w-10 h-10 rounded-md border border-slate-600/50"
+                value={formData.color}
+              />
+              <ColorSlider.Track class="relative flex-1 h-2 bg-gradient-to-r from-red-500 via-yellow-500 to-blue-500 rounded-full shadow-inner cursor-pointer">
+                <ColorSlider.Thumb class="block w-4 h-4 -mt-1 bg-white border-2 border-slate-400 rounded-full shadow focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                  <ColorSlider.Input />
+                </ColorSlider.Thumb>
+              </ColorSlider.Track>
+            </div>
+          </ColorSlider>
+        </div>
       </div>
 
       {/* Tags */}
@@ -284,9 +318,6 @@ export function TodoForm() {
             class="px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           />
         </TextField>
-
-
-
       </Show>
 
       <button
