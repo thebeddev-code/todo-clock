@@ -1,22 +1,23 @@
 import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
-import { CreateTodoPayload } from "~/lib/schemas/todo.schema";
-import { createStore } from "solid-js/store";
+import { CreateTodoPayload, todoPayloadSchema } from "~/lib/schemas/todo.schema";
+import { createStore, unwrap } from "solid-js/store";
 import { TextField } from "@kobalte/core/text-field";
 import { Select } from "@kobalte/core/select";
 import { ColorSwatch } from "@kobalte/core/color-swatch";
 import { format, formatDate, parse, set } from "date-fns";
 import { TagsField } from "~/lib/components/ui/form/tags-field";
-import { Todo } from "~/lib/types";
+import { BlurEvent, Todo } from "~/lib/types";
 import { DEFAULT_TAGS, WEEKDAYS } from "../lib/constants";
 import { Color, parseColor } from "@kobalte/core/colors";
 import { ColorSlider } from "@kobalte/core/color-slider";
-
+import { trackDeep, trackStore } from "@solid-primitives/deep";
+import { trimAndLowercase } from "~/lib/utils/strings";
 
 
 /*
  * TODO: Sync starts at and due fields when setting starts at field
  * DONE: Better color input
- * TODO: Form errors
+ * TODO: Form validation
  *
  * */
 
@@ -25,6 +26,7 @@ type FormData = Omit<CreateTodoPayload, "color"> & {
   monthlyDate: string
 }
 
+// NOTE: Not the best form and a lot can be improved but it gets the job done
 export function TodoForm() {
   const [formData, setFormData] = createStore<FormData>({
     title: "",
@@ -37,19 +39,15 @@ export function TodoForm() {
     updatedAt: new Date().toISOString(),
     color: parseColor("hsl(80, 100%, 50%)"),
     due: new Date().toISOString(),
-    startsAt: new Date().toString(),
+    startsAt: new Date().toISOString(),
     recurrenceRule: "",
     monthlyDate: new Date().toString()
   });
 
   const [formErrors, setFormErrors] = createStore<Partial<Todo>>({});
-  const [formTouchedFields, setFormTouchedFields] = createStore<Partial<Record<keyof Todo, boolean>>>({});
+  const [formTouched, setFormTouched] = createStore<Partial<Record<keyof Todo, boolean>>>({});
 
-  function handleSubmit(e: SubmitEvent) {
-    e.preventDefault();
-    console.log(formData);
-  }
-  // TODO: Replace with FormData type
+
   function createFieldChangeHandler<Key extends keyof FormData>(
     fieldName: keyof FormData
   ) {
@@ -59,38 +57,53 @@ export function TodoForm() {
         [fieldName]: value,
       }));
   }
+
+  function handleBlur(e: BlurEvent) {
+    const { name } = e.target;
+    setFormTouched((prev) => ({ ...prev, [name]: true }));
+  };
+
   function createTimeFieldChangeHandler(fieldName: "startsAt" | "due") {
     return (t: string) => {
       const [h, m] = t.split(":");
-
       setFormData((data) => ({
         ...data,
         [fieldName]: set(data.startsAt as string, {
           hours: Number.parseInt(h) as number,
           minutes: Number.parseFloat(m) as number,
-        }),
+        }).toISOString(),
       }));
     };
   }
 
   const tagSuggestions = createMemo(() => {
     const tags = formData.tags.map((t) => t.toLowerCase().trim());
+    // If recurrence [everyday] or [monthly] tag exist
+    // We do not want to suggest [weekdays] tags
+    // Since recurrence can't be both [everyday] and [weekday] 
     if (tags.includes("everyday") || tags.includes("monthly")) return []
+    // Same logic applies to here
     if (WEEKDAYS.find((w) => tags.includes(w))) return WEEKDAYS.filter((w) => !tags.includes(w));
+
     return DEFAULT_TAGS;
   })
 
+  // construct [recurrenceRule] from [tags] and set the [isRecurring] flag
   createEffect(() => {
     const currentMonthly = new Date(formData.monthlyDate);
     function getRecurrenceRule(tags: string[]) {
-      const lowerCaseTags: string[] = tags.map((v: string) =>
-        v.toLowerCase(),
+      const lowerCaseTags: string[] = tags.map((t: string) =>
+        trimAndLowercase(t),
       );
+
       if (lowerCaseTags.includes("everyday")) return "everyday";
-      const weekly = lowerCaseTags.filter((v) => WEEKDAYS.includes(v));
+
+      const weekly = lowerCaseTags.filter((t) => WEEKDAYS.includes(t));
       if (weekly.length > 0) return `weekly=${weekly.join(",")}`;
+
       if (lowerCaseTags.includes("weekly"))
         return `weekly=${WEEKDAYS[new Date().getDay() - 1]}`;
+
       if (lowerCaseTags.includes("monthly")) {
         const monthlyDate = formatDate(
           currentMonthly ? new Date(currentMonthly) : new Date(),
@@ -103,9 +116,37 @@ export function TodoForm() {
     }
     const prefix = "rrule:"
     const recurrenceRule = `${prefix}${getRecurrenceRule(formData.tags)}`.toLowerCase();
-    console.log(recurrenceRule)
     setFormData((data) => ({ ...data, recurrenceRule, isRecurring: recurrenceRule !== prefix }))
   })
+
+  // NOTE: Probably a much better way to do this
+  const getFormData = () => trackDeep(formData);
+  const getFormTouched = () => trackDeep(formTouched);
+  // Form Validation
+  createEffect(() => {
+    const formData = unwrap(getFormData());
+    formData.color = formData.color.toString("hex") as unknown as Color;
+    const formTouched = unwrap(getFormTouched());
+
+    const { error } = todoPayloadSchema.safeParse(formData)
+    const formErrorMessages: Record<string, string> = {}
+    // Only process fields that have been touched
+    const fields = Object.keys(formTouched);
+    console.log(fields)
+    for (const f of fields) {
+      const { message = null } = error?.issues.find(issue => {
+        return issue.path.includes(f)
+      }) ?? {};
+      formErrorMessages[f] = message ?? "";
+    }
+    console.log(error, formErrorMessages)
+    setFormErrors(formErrorMessages)
+  })
+
+  function handleSubmit(e: SubmitEvent) {
+    e.preventDefault();
+    console.log(unwrap(formData))
+  }
 
   return (
     <form
@@ -123,21 +164,26 @@ export function TodoForm() {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Title - Full Width */}
         <TextField
+          name="title"
           class="flex flex-col gap-1 md:col-span-2"
           value={formData.title}
           onChange={createFieldChangeHandler("title")}
+          validationState={formErrors.title ? "invalid" : "valid"}
         >
           <TextField.Label class="text-sm font-medium text-slate-700">
             Title
           </TextField.Label>
           <TextField.Input
+            onBlur={handleBlur}
             placeholder="What needs to be done?"
             class="px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           />
+          <TextField.ErrorMessage class="text-sm text-red-400 mt-1">{formErrors.title}</TextField.ErrorMessage>
         </TextField>
 
         {/* Description - Full Width */}
         <TextField
+          name="description"
           class="flex flex-col gap-1 md:col-span-2"
           value={formData.description}
           onChange={createFieldChangeHandler("description")}
@@ -146,6 +192,7 @@ export function TodoForm() {
             Description
           </TextField.Label>
           <TextField.TextArea
+            onBlur={handleBlur}
             placeholder="Add some details..."
             class="px-3 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[100px]"
           />
@@ -296,11 +343,13 @@ export function TodoForm() {
 
       {/* Tags */}
       <TagsField
+        name="tags"
         value={formData.tags}
         onChange={createFieldChangeHandler("tags")}
+        onBlur={handleBlur}
         label="Tags"
         suggestions={tagSuggestions()}
-        error={createMemo(() => formErrors.tags?.[0] ?? "")()}
+        error={formErrors.tags as unknown as string ?? ""}
       />
 
       <Show when={formData.recurrenceRule?.includes("monthly")}>
@@ -326,6 +375,6 @@ export function TodoForm() {
       >
         Create Task
       </button>
-    </form>
+    </form >
   );
 }
