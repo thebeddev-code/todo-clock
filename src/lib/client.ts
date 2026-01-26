@@ -1,15 +1,14 @@
-import { Options, } from './backend/router';
 import { isTauri } from '@tauri-apps/api/core';
 import * as backend from './backend/router';
+import type { EndpointOptions, Endpoints } from './backend/router';
 
 class ApiClient {
-  private baseUrl = "http://localhost:5000/api/v1/";
   constructor() {
   }
   private async request<T>(
     method: string,
     route: string,
-    options?: Options,
+    options?: unknown,
   ): Promise<T> {
 
     if (isTauri()) {
@@ -20,28 +19,37 @@ class ApiClient {
     return [] as T;
   }
 
-  async get<T>(url: string, options?: Options) {
-    return this.request<T>("GET", url, options);
+  async get<E extends Endpoints,
+    M extends keyof typeof backend.routerConfig[E]
+  >(url: string, options?: EndpointOptions<E, M>) {
+    return this.request("GET", url, options);
   }
 
-  async create<T>(
+  async create<E extends Endpoints,
+    M extends keyof typeof backend.routerConfig[E]
+  >(
     url: string,
-    options: Options
+    options: EndpointOptions<E, M>
   ) {
-    return this.request<T>("POST", url, options);
+    return this.request("POST", url, options);
   }
 
-  async update<T>(
+  async update<E extends Endpoints,
+    M extends keyof typeof backend.routerConfig[E]
+  >(
     url: string,
-    options: Options
+    options: EndpointOptions<E, M>
   ) {
-    return this.request<T>("PATCH", url, options);
+    return this.request("PATCH", url, options);
   }
 
-  async delete<T>(
+  async delete<E extends Endpoints,
+    M extends keyof typeof backend.routerConfig[E]
+  >(
     url: string,
+    options: EndpointOptions<E, M>
   ) {
-    return this.request<T>("DELETE", url);
+    return this.request("DELETE", url, options);
   }
 }
 
