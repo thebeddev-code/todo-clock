@@ -22,8 +22,8 @@ export type EndpointResponse<
   E extends Endpoints,
   M extends keyof typeof routerConfig[E]
 > = ReturnType<(typeof routerConfig)[E][M] extends (...args: any[]) => any
-  ? (typeof routerConfig)[E][M]
-  : never>[0];
+  ? ((typeof routerConfig)[E][M])
+  : never>;
 
 export type EndpointDescription<
   E extends Endpoints,
