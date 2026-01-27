@@ -1,5 +1,13 @@
+// use migration::{Migrator, MigratorTrait};
+use sea_orm::DatabaseConnection;
+use std::env;
+use std::sync::Arc;
 use tauri::App;
-use tauri_plugin_sql::{Migration, MigrationKind};
+use tauri::Manager;
+
+struct DbState {
+    conn: Arc<DatabaseConnection>,
+}
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
@@ -9,36 +17,26 @@ fn greet(name: &str) -> String {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let migrations = vec![
-    Migration {
-        version: 1,
-        description: "create todos table",
-        sql: "CREATE TABLE IF NOT EXISTS todos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            description TEXT,
-            tags TEXT,
-            color TEXT,
-            status TEXT NOT NULL CHECK(status IN ('pending', 'in-progress', 'completed', 'overdue')),
-            priority TEXT NOT NULL CHECK(priority IN ('low', 'medium', 'high')),
-            startsAt TEXT,
-            due TEXT,
-            updatedAt TEXT NOT NULL,
-            completedAt TEXT,
-            isRecurring INTEGER NOT NULL,
-            recurrenceRule TEXT
-        )",
-        kind: MigrationKind::Up,
-    }
-];
-
     tauri::Builder::default()
+        .setup(|app| {
+            tauri::async_runtime::block_on(async {
+                let current_dir = std::env::current_dir().unwrap();
+                let path = current_dir.join("db.sqlite");
+                let database_url = format!("sqlite://{}?mode=rwc", path.to_string_lossy());
+                println!("{}", database_url);
+                let conn = sea_orm::Database::connect(&database_url)
+                    .await
+                    .expect("Failed to connect to db");
 
-        .plugin(
-            tauri_plugin_sql::Builder::default()
-                .add_migrations("sqlite:todos.db", migrations)
-                .build(),
-        )
+                // Migrator::up(&conn, None).await;
+                app.manage(DbState {
+                    conn: Arc::new(conn),
+                });
+                Ok::<(), ()>(())
+            })
+            .unwrap();
+            Ok(())
+        })
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![greet])
         .run(tauri::generate_context!())
