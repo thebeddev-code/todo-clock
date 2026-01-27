@@ -46,6 +46,7 @@ export function handleRequest<Routes>(method: string, route: string, options: un
   if (!handler) {
     throw new Error(`Method [${method}] is not implemented for [${route}] Route`)
   }
+  console.log(`Route: ${result.matchedRoute} ${method}`)
   return handler(options);
 }
 
