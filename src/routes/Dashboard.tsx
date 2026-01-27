@@ -3,16 +3,18 @@ import { DayVisualizer } from "~/features/visualizer/components/DayVisualizer";
 // import { TodoFormWrapper } from "@/features/todos/TodoFormWrapper";
 // import { TodoList } from "@/features/todos/TodoList";
 import { addDays, set } from "date-fns";
-import { Accessor, createSignal, Show } from "solid-js";
+import { Accessor, createEffect, createSignal, Show } from "solid-js";
 import { Todo } from "~/lib/types";
 import { createAsync } from "@solidjs/router";
 import { getTodos } from "~/features/todos/api/getTodos";
 import { TodoList } from "~/features/todos/components/TodoList";
 import { TodoForm } from "~/features/todos/components/TodoForm";
+import { TodoFormWrapper } from "~/features/todos/components/TodoFormWrapper";
 
 export default function Dashboard() {
-  const todos = createAsync(() => getTodos()) as Accessor<Todo[]>;
+  const todos = createAsync(() => getTodos({}));
   const [currentDate, setCurrentDate] = createSignal(new Date());
+  createEffect(() => console.log(todos()))
   // const { data, status } = useTodos({
   //   params: {
   //     due: "today",
@@ -46,13 +48,9 @@ export default function Dashboard() {
           />
           <TodoList todos={todos} />
         </Show>
-
         {/* )} */}
         {/* {status === "success" && todos && <TodoList todos={todos} />} */}
-        {/* <TodoFormWrapper /> */}
-        <div class="flex w-dvw absolute z-50 right-0">
-          <TodoForm></TodoForm>
-        </div>
+        <TodoFormWrapper />
       </main>
     </div>
   );
