@@ -1,6 +1,10 @@
+import { query } from "@solidjs/router";
 import { isTauri } from '@tauri-apps/api/core';
 import * as backend from './backend/router';
-import type { EndpointOptions, Endpoints } from './backend/router';
+import type { EndpointOptions, Endpoints, EndpointResponse } from './backend/router';
+
+const { routerConfig } = backend
+
 
 class ApiClient {
   constructor() {
@@ -16,6 +20,7 @@ class ApiClient {
     }
     // TODO: implement web client logic
     // throw new Error("Not yet implemented!")
+    console.error("Web not implemented yet!")
     return [] as T;
   }
 
@@ -54,3 +59,11 @@ class ApiClient {
 }
 
 export const api = new ApiClient();
+
+
+export function createTypedQuery<
+  E extends Endpoints,
+  M extends keyof typeof routerConfig[E]
+>(handler: (options: EndpointOptions<E, M>) => Promise<unknown>, route: E) {
+  return query((options: EndpointOptions<E, M>) => handler(options) as EndpointResponse<E, M>, route);
+}
