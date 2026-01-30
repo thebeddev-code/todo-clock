@@ -1,7 +1,7 @@
 import { query } from "@solidjs/router";
 import { isTauri } from '@tauri-apps/api/core';
-import * as backend from './backend/router';
-import type { EndpointOptions, Endpoints, EndpointResponse } from './backend/router';
+import * as backend from './router';
+import type { EndpointOptions, Endpoints, EndpointResponse } from './router';
 
 const { routerConfig } = backend
 

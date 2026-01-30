@@ -50,4 +50,4 @@ type Query<Fields> = {
      */
     cursor?: string;
   };
-};   
+};  
