@@ -33,7 +33,7 @@ pub fn run() {
 ];
 
     tauri::Builder::default()
-
+        .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(
             tauri_plugin_sql::Builder::default()
                 .add_migrations("sqlite:todos.db", migrations)
