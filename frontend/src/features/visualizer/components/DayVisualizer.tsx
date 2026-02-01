@@ -24,7 +24,7 @@ const VIEW_HOURS = 6;
 const MAX_TOTAL_DEGREES = 360 * 2;
 
 interface Props {
-  todos: Todo[];
+  todos: Accessor<Todo[]>;
   onFormOpen?: (data: Pick<Todo, "startsAt" | "due">) => void;
   onMoveDate?: (days: number) => void;
   currentDate?: Accessor<Date>;
@@ -80,7 +80,7 @@ export function DayVisualizer({
     ctx.scale(dpr, dpr);
 
     const viewHoursStart = clockHandleDegrees().totalAngle / DEGREES_PER_HOUR;
-    const copyTodos = [...todos];
+    const copyTodos = [...todos()];
     if (newTodo()) copyTodos.push(newTodo() as Todo);
     const drawableTodos = todosToDrawables({ todos: copyTodos });
     drawTodos({

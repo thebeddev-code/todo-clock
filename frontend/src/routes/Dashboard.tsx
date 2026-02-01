@@ -29,7 +29,7 @@ export default function Dashboard() {
         {/* {status === "success" && todos && ( */}
         <Show when={todos()}>
           <DayVisualizer
-            todos={todos() as Todo[]}
+            todos={todos}
             currentDate={currentDate}
             onMoveDate={(days) => {
               let date = set(currentDate(), {
@@ -58,7 +58,7 @@ export default function Dashboard() {
         </Show>
         {/* )} */}
         {/* {status === "success" && todos && <TodoList todos={todos} />} */}
-        <TodoFormWrapper />
+        <TodoFormDrawer />
       </main>
     </div >
   );
