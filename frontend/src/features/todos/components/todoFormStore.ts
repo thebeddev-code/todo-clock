@@ -4,7 +4,7 @@ import { Todo } from "~/lib/types";
 
 export type TodoFormStore = {
   formType: "create" | "update" | "readonly" | null
-  todoData?: Todo
+  todoData?: Partial<Todo>
 }
 // Initialize store
 export const [todoFormStore, setTodoFormStore] = createStore<TodoFormStore>({

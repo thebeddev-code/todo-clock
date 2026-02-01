@@ -10,6 +10,7 @@ import { getTodos } from "~/features/todos/api/getTodos";
 import { TodoList } from "~/features/todos/components/TodoList";
 import { TodoForm } from "~/features/todos/components/TodoForm";
 import { TodoFormWrapper } from "~/features/todos/components/TodoFormWrapper";
+import { setTodoFormStore } from "~/features/todos/components/todoFormStore";
 
 export default function Dashboard() {
   const todos = createAsync(() => getTodos({}));
@@ -45,6 +46,13 @@ export default function Dashboard() {
               }
               setCurrentDate(addDays(date, days));
             }}
+            onFormOpen={(todo) => {
+              console.log("Create todo")
+              setTodoFormStore({
+                formType: "create",
+                todoData: todo
+              })
+            }}
           />
           <TodoList todos={todos} />
         </Show>
@@ -52,6 +60,6 @@ export default function Dashboard() {
         {/* {status === "success" && todos && <TodoList todos={todos} />} */}
         <TodoFormWrapper />
       </main>
-    </div>
+    </div >
   );
 }

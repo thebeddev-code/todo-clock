@@ -13,6 +13,7 @@ import { ColorSlider } from "@kobalte/core/color-slider";
 import { trackDeep, trackStore } from "@solid-primitives/deep";
 import { trimAndLowercase } from "~/lib/utils/strings";
 import { createTodo } from "../api/createTodo";
+import { todoFormStore } from "./todoFormStore";
 
 
 /*
@@ -42,7 +43,8 @@ export function TodoForm() {
     due: new Date().toISOString(),
     startsAt: new Date().toISOString(),
     recurrenceRule: "",
-    monthlyDate: new Date().toString()
+    monthlyDate: new Date().toString(),
+    ...((todoFormStore.todoData ?? {}) as CreateTodoPayload)
   });
 
   const [formErrors, setFormErrors] = createStore<Partial<Todo>>({});

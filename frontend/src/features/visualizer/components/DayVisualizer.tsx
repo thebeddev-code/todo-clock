@@ -25,7 +25,7 @@ const MAX_TOTAL_DEGREES = 360 * 2;
 
 interface Props {
   todos: Todo[];
-  onFormOpen?: (data: Pick<Todo, "startsAt" | "due" | "color">) => void;
+  onFormOpen?: (data: Pick<Todo, "startsAt" | "due">) => void;
   onMoveDate?: (days: number) => void;
   currentDate?: Accessor<Date>;
 }
@@ -124,7 +124,6 @@ export function DayVisualizer({
       const step = 15 / 60;
       // FIXME: doesn't take in calculation the currently set date 
       onFormOpen?.({
-        ...newTodo()!,
         startsAt: new Date(newTodo()?.startsAt as string).toISOString(),
         due: degreesToDate(
           calcDegreesFrom(snapToStep(hours, step), "hours"),
@@ -156,8 +155,9 @@ export function DayVisualizer({
       ? 0
       : clockHandleDegrees().totalAngle
   )
+
   return (
-    <div class="mt-20 bg-white flex-col flex justify-center items-center">
+    <div class="select-none mt-20 bg-white flex-col flex justify-center items-center">
       <div class="relative rounded-full" onClick={handleCreateTodoClick}>
 
         {/* Date switching */}
