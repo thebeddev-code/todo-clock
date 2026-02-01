@@ -1,10 +1,10 @@
 import createRouteMatcher from '@tscircuit/routematch'
-import * as todoService from './services/todo.service.ts';
+import * as todosController from './controllers/todos.controller.ts';
 
 export const routerConfig = {
   "/todos": {
-    GET: todoService.getTodos,
-    POST: todoService.createTodo
+    GET: todosController.getTodos,
+    POST: todosController.createTodo
   }
 }
 
