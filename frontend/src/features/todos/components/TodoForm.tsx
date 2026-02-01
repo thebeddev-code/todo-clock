@@ -158,7 +158,7 @@ export function TodoForm() {
     <form
       autocomplete="off"
       onSubmit={handleSubmit}
-      class="flex flex-col gap-6 bg-white p-8 rounded-xl shadow-sm border border-slate-200 w-1/2 mx-auto"
+      class="flex flex-col gap-6 bg-white p-8 mx-auto"
       onClick={(e) => e.stopPropagation()}
     >
       <header>
