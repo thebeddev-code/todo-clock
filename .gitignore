@@ -2,6 +2,7 @@ node_modules
 dist
 *.ignore.*
 *.ignore
+*.db
 
 # Build binaries
 *.exe
