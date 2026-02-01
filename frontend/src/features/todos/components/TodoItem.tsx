@@ -3,6 +3,7 @@ import { X as Close, SquarePen } from "lucide-solid";
 import { Button } from "~/lib/components/ui/button";
 import { ClickEvent, Todo } from "~/lib/types";
 import { deleteTodoMutation } from "../api/deleteTodoMutation";
+import { completeTodoMutation } from "../api/completeTodoMutation";
 
 type Props = {
   todo: Todo;
@@ -29,17 +30,17 @@ export function TodoItem({ todo, onShowExpandedView }: Props) {
   }
   function handleCompleteTodo() {
     if (todo.status === "completed") {
-      // completeTodoMutation.mutate({
-      //   id: todo.id,
-      //   completedAt: null,
-      //   status: "pending",
-      // });
+      completeTodoMutation({
+        id: todo.id,
+        completedAt: null,
+        status: "pending",
+      });
     } else {
-      // completeTodoMutation.mutate({
-      //   id: todo.id,
-      //   completedAt: new Date().toISOString(),
-      //   status: "completed",
-      // });
+      completeTodoMutation({
+        id: todo.id,
+        completedAt: new Date().toISOString(),
+        status: "completed",
+      });
     }
   }
   function handleDeleteTodo() {
