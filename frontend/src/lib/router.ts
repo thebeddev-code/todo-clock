@@ -3,7 +3,8 @@ import * as todoService from './services/todo.service.ts';
 
 export const routerConfig = {
   "/todos": {
-    GET: todoService.getTodos
+    GET: todoService.getTodos,
+    POST: todoService.createTodo
   }
 }
 
