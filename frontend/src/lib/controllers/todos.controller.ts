@@ -1,9 +1,16 @@
-import { CreateTodo, GetTodos } from "~/go/services/TodoService";
+import { CreateTodo, DeleteTodo, GetTodos } from "~/go/services/TodoService";
 import { Todo } from "../types/index";
+import { todoPayloadSchema } from "../schemas/todo.schema";
+import z from "zod";
 
 export async function createTodo({ body }: { body: Todo }) {
-  console.log(body)
-  console.log(await CreateTodo(body))
+  try {
+    const data = todoPayloadSchema.parse(body)
+    await CreateTodo(data as Todo)
+  } catch (e) {
+    console.error("Bug in createTodo controller", e);
+    throw new Error("Invalid todo data")
+  }
 }
 
 export async function getTodos() {
@@ -14,6 +21,7 @@ export function updateTodo() {
 
 }
 
-export function deleteTodo() {
-
+export function deleteTodo({ id }: { id: number }) {
+  z.number().min(0).parse(id)
+  DeleteTodo(id)
 }

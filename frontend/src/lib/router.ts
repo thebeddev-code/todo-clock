@@ -4,7 +4,8 @@ import * as todosController from './controllers/todos.controller.ts';
 export const routerConfig = {
   "/todos": {
     GET: todosController.getTodos,
-    POST: todosController.createTodo
+    POST: todosController.createTodo,
+    DELETE: todosController.deleteTodo
   }
 }
 
