@@ -11,7 +11,7 @@ class ApiClient {
   private async request<T>(
     method: string,
     route: string,
-    options?: unknown,
+    options = {},
   ): Promise<T> {
 
     if (true) {
@@ -42,7 +42,7 @@ class ApiClient {
     M extends keyof typeof backend.routerConfig[E]
   >(
     url: string,
-    options: EndpointOptions<E, M>
+    options?: EndpointOptions<E, M>
   ) {
     return this.request("PATCH", url, options);
   }
@@ -51,7 +51,7 @@ class ApiClient {
     M extends keyof typeof backend.routerConfig[E]
   >(
     url: string,
-    options: EndpointOptions<E, M>
+    options?: EndpointOptions<E, M>
   ) {
     return this.request("DELETE", url, options);
   }
@@ -60,9 +60,10 @@ class ApiClient {
 export const api = new ApiClient();
 
 
+// TODO: Pass a typed fetcher to the handler
 export function createTypedQuery<
   E extends Endpoints,
   M extends keyof typeof routerConfig[E]
->(handler: (options: EndpointOptions<E, M>) => Promise<unknown>, route: E) {
+>(handler: (options: EndpointOptions<E, M>) => Promise<unknown>, route: E | string) {
   return query((options: EndpointOptions<E, M>) => handler(options) as EndpointResponse<E, M>, route);
 }

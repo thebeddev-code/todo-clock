@@ -1,10 +1,13 @@
 import createRouteMatcher from '@tscircuit/routematch'
 import * as todosController from './controllers/todos.controller.ts';
+import { convertStringFieldsToNumbers } from './utils/object.ts';
 
 export const routerConfig = {
   "/todos": {
     GET: todosController.getTodos,
     POST: todosController.createTodo,
+  },
+  "/todos/[id]": {
     DELETE: todosController.deleteTodo
   }
 }
@@ -39,16 +42,23 @@ export type EndpointDescription<
 const routeMatcher = createRouteMatcher(Object.keys(routerConfig))
 
 // Simple routing
-export function handleRequest<Routes>(method: string, route: string, options: unknown) {
+export function handleRequest(method: string, route: string, options: Record<string, unknown>) {
   const result = routeMatcher(route);
   if (!result) {
     throw new Error(`Route [${route}] is not implemented`)
   }
-  const handler = routerConfig[result.matchedRoute][method];
+  const { matchedRoute, routeParams } = result;
+  // TODO: make handle request generic
+  // @ts-ignore: We can't satisfy the routerConfig generics because handleRequest isn't generic
+  const handler = routerConfig[matchedRoute][method];
   if (!handler) {
     throw new Error(`Method [${method}] is not implemented for [${route}] Route`)
   }
-  console.log(`Route: ${result.matchedRoute} ${method}`)
+  console.log(`Route: ${result.matchedRoute} ${method} Params: ${routeParams} Data: ${options}`)
+
+  if (Object.keys(routeParams).length > 0) {
+    return handler({ ...(convertStringFieldsToNumbers(routeParams as Record<string, unknown>)), ...options })
+  }
   return handler(options);
 }
 
