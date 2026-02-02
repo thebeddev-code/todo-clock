@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, For, Show, Switch } from "solid-js";
 import { CreateTodoPayload, todoPayloadSchema } from "~/lib/schemas/todo.schema";
 import { createStore, unwrap } from "solid-js/store";
 import { TextField } from "@kobalte/core/text-field";
@@ -13,7 +13,9 @@ import { ColorSlider } from "@kobalte/core/color-slider";
 import { trackDeep, trackStore } from "@solid-primitives/deep";
 import { trimAndLowercase } from "~/lib/utils/strings";
 import { createTodo } from "../api/createTodo";
-import { todoFormStore } from "./todoFormStore";
+import { setTodoFormStore, todoFormStore } from "./todoFormStore";
+import { updateTodoMutation } from "../api/updateTodoMutation";
+import z from "zod";
 
 
 /*
@@ -39,14 +41,14 @@ export function TodoForm() {
     priority: "low",
     status: "pending",
     updatedAt: new Date().toISOString(),
-    color: parseColor("hsl(80, 100%, 50%)"),
     due: new Date().toISOString(),
     startsAt: new Date().toISOString(),
     recurrenceRule: "",
     monthlyDate: new Date().toString(),
-    ...((todoFormStore.todoData ?? {}) as CreateTodoPayload)
+    ...(todoFormStore.todoData ?? {}),
+    // TODO: convert from HUE to hsl or hex  -> todoFormStore.todoData?.color ?? 
+    color: parseColor("hsl(80, 100%, 50%)"),
   });
-
   const [formErrors, setFormErrors] = createStore<Partial<Todo>>({});
   const [formTouched, setFormTouched] = createStore<Partial<Record<keyof Todo, boolean>>>({});
 
@@ -143,17 +145,33 @@ export function TodoForm() {
     setFormErrors(formErrorMessages)
   })
 
-  function handleSubmit(e: SubmitEvent) {
+  async function handleSubmit(e: SubmitEvent) {
     e.preventDefault()
     const data = unwrap(formData);
     data.color = data.color.toString("hex") as unknown as Color;
     const { success, error } = todoPayloadSchema.safeParse(data)
-    console.log(error)
+    try {
+      if (success)
+        if (todoFormStore.formType === "create")
+          await createTodo({
+            body: data as unknown as Todo
+          })
+      if (todoFormStore.formType === "update") {
 
-    if (success)
-      createTodo({
-        body: data
+        z.number().parse(todoFormStore.todoData?.id!)
+        await updateTodoMutation({
+          id: todoFormStore.todoData?.id as number,
+          body: data as unknown as Todo
+        })
+      }
+    } catch (err) {
+    } finally {
+      setTodoFormStore({
+        formType: null,
+        todoData: undefined
       })
+
+    }
   }
 
   return (
@@ -382,7 +400,7 @@ export function TodoForm() {
         type="submit"
         class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition-colors shadow-sm active:scale-[0.98]"
       >
-        Create Task
+        {todoFormStore.formType === "update" ? "Update" : "Create"}
       </button>
     </form >
   );
