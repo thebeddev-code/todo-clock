@@ -18,7 +18,7 @@ export function TodoFormDrawer() {
     >
       <div
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
-        class="relative left-1/2 w-1/2 bg-white dark:bg-gray-900 "
+        class="relative max-h-dvh overflow-y-scroll left-1/2 w-1/2 bg-white dark:bg-gray-900 "
       >
         <Show when={Boolean(todoFormStore.formType)}>
           <TodoForm />
