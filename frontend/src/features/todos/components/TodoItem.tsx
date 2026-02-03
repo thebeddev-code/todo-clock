@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { X as Close, SquarePen } from "lucide-solid";
 import { Button } from "~/lib/components/ui/button";
-import { ClickEvent, Todo } from "~/lib/types";
+import type { ClickEvent, Todo } from "~/lib/types";
 import { deleteTodoMutation } from "../api/deleteTodoMutation";
 import { completeTodoMutation } from "../api/completeTodoMutation";
 import { setTodoFormStore } from "./todoFormStore";

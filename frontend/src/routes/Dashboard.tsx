@@ -21,7 +21,7 @@ import {
 	setTodoFormStore,
 	todoFormStore,
 } from "~/features/todos/components/todoFormStore";
-import { VisualizableTodo } from "~/features/visualizer/utils/types";
+import type { VisualizableTodo } from "~/features/visualizer/utils/types";
 
 export default function Dashboard() {
 	const todosQueryResult = createAsync(() => getTodos({}));

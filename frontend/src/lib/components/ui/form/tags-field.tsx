@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils/cn";
 import { Plus, X } from "lucide-solid";
 import { Button } from "@kobalte/core/button";
 import { FocusOutsideEvent } from "@kobalte/core/src/index.jsx";
-import { BlurEvent } from "~/lib/types";
+import type { BlurEvent } from "~/lib/types";
 
 /*
  * DONE: Improve visual styles e.g the clear button

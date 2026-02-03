@@ -1,5 +1,5 @@
 import { createStore } from "solid-js/store";
-import { Todo } from "~/lib/types";
+import type { Todo } from "~/lib/types";
 
 const CREATE_TODO_DEFAULT_DATA = {
 	title: "",

@@ -1,5 +1,5 @@
 import { Sunrise, Sun, Sunset, Moon, RotateCcw } from "lucide-solid";
-import { ClickEvent } from "~/lib/types";
+import type { ClickEvent } from "~/lib/types";
 import { cn } from "~/lib/utils";
 
 interface Props {

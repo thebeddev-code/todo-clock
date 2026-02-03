@@ -57,7 +57,7 @@ export function handleRequest(
 	}
 	const { matchedRoute, routeParams } = result;
 	// TODO: make handle request generic
-	// @ts-ignore: We can't satisfy the routerConfig generics because handleRequest isn't generic
+	// @ts-expect-error: We can't satisfy the routerConfig generics because handleRequest isn't generic
 	const handler = routerConfig[matchedRoute][method];
 	if (!handler) {
 		throw new Error(

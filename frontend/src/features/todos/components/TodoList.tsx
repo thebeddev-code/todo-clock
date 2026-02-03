@@ -1,9 +1,9 @@
 import { Plus } from "lucide-solid";
 import { Button } from "~/lib/components/ui/button";
-import { Todo } from "~/lib/types";
+import type { Todo } from "~/lib/types";
 import { TodoExpandedView } from "./TodoExpandedView";
 import { TodoItem } from "./TodoItem";
-import { Accessor, createMemo, createSignal, For, Show } from "solid-js";
+import { type Accessor, createMemo, createSignal, For, Show } from "solid-js";
 import { openTodoForm, setTodoFormStore } from "./todoFormStore";
 
 export function TodoList({ todos }: { todos: Accessor<Todo[]> }) {

@@ -4,7 +4,7 @@ import {
 	GetTodos,
 	UpdateTodo,
 } from "~/go/services/TodoService";
-import { Todo } from "../types/index";
+import type { Todo } from "../types/index";
 import { todoPayloadSchema } from "../schemas/todo.schema";
 import z from "zod";
 

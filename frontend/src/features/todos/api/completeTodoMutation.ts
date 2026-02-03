@@ -1,4 +1,4 @@
-import { Todo } from "~/lib/types";
+import type { Todo } from "~/lib/types";
 import { updateTodoMutation } from "./updateTodoMutation";
 
 export const completeTodoMutation = (

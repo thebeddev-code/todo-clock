@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { X as Close } from "lucide-solid";
-import { twMerge, ClassNameValue } from "tailwind-merge";
-import { Todo } from "~/lib/types";
+import { twMerge, type ClassNameValue } from "tailwind-merge";
+import type { Todo } from "~/lib/types";
 import { onMount, onCleanup } from "solid-js";
 
 function DateField({ label, value }: { label: string; value?: string | null }) {

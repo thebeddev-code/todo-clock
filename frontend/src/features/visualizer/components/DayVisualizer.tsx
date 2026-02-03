@@ -1,6 +1,6 @@
 import { addHours, formatDate, set } from "date-fns";
 import { DEGREES_PER_HOUR } from "../utils/constants";
-import { Todo } from "~/lib/types";
+import type { Todo } from "~/lib/types";
 
 import { calcClosestDistToClockHandle } from "../utils/distToClockHandle";
 import { drawTodos, todosToDrawables } from "../utils/drawTodos";
@@ -15,14 +15,14 @@ import { ClockHandle } from "./ClockHandle";
 import { degreesToDate } from "../utils/date";
 import { Sunrise, Sun, Sunset, Moon, ChevronUp } from "lucide-solid";
 import {
-	Accessor,
+	type Accessor,
 	createEffect,
 	createMemo,
 	createSignal,
 	Show,
 } from "solid-js";
-import { ClickEvent } from "~/lib/types";
-import { VisualizableTodo } from "../utils/types";
+import type { ClickEvent } from "~/lib/types";
+import type { VisualizableTodo } from "../utils/types";
 
 const RADIUS = 170;
 const MAX_LAST_CLICK_DIFF_MS = 300;

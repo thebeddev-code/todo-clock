@@ -7,7 +7,7 @@ import {
 	Switch,
 } from "solid-js";
 import {
-	CreateTodoPayload,
+	type CreateTodoPayload,
 	todoPayloadSchema,
 } from "~/lib/schemas/todo.schema";
 import { createStore, unwrap } from "solid-js/store";
@@ -16,7 +16,7 @@ import { Select } from "@kobalte/core/select";
 import { ColorSwatch } from "@kobalte/core/color-swatch";
 import { format, formatDate, parse, set } from "date-fns";
 import { TagsField } from "~/lib/components/ui/form/tags-field";
-import { BlurEvent, Todo } from "~/lib/types";
+import type { BlurEvent, Todo } from "~/lib/types";
 import { DEFAULT_TAGS, WEEKDAYS } from "../lib/constants";
 import { Color, parseColor } from "@kobalte/core/colors";
 import { trackDeep, trackStore } from "@solid-primitives/deep";

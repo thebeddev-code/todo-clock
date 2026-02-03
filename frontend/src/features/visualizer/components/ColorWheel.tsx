@@ -1,4 +1,4 @@
-import { Accessor, createEffect, createMemo, JSX } from "solid-js";
+import { type Accessor, createEffect, createMemo, type JSX } from "solid-js";
 import { COLOR_WHEEL_WIDTH } from "../utils/constants";
 
 interface Props {
@@ -65,7 +65,7 @@ export function ColorWheel({ config, degrees: currentDegrees }: Props) {
 		// Think of this as a multicolor line segment, with start and end degrees
 		for (let i = 0; i < marks.length; ++i) {
 			// this is the end
-			let [degreesEndString, { color }] = marks[i];
+			const [degreesEndString, { color }] = marks[i];
 			let degreesEnd = Number.parseFloat(degreesEndString);
 			if (!Number.isFinite(degreesEnd)) continue;
 			//  this is the start

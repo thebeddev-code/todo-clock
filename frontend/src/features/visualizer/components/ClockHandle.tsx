@@ -5,13 +5,13 @@ import { cn } from "~/lib/utils";
 import { getCurrentTimeInDegrees, getMouseAngleInDegrees } from "../utils/math";
 
 import { ClockHandleTools } from "./ClockHandleTools";
-import { ClickEvent } from "~/lib/types";
+import type { ClickEvent } from "~/lib/types";
 import {
-	Accessor,
+	type Accessor,
 	createEffect,
 	createMemo,
 	createSignal,
-	JSXElement,
+	type JSXElement,
 } from "solid-js";
 
 const HANDLE_BUTTON_SIZE_PX = 21;
