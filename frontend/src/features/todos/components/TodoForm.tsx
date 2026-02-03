@@ -12,7 +12,7 @@ import { Color, parseColor } from "@kobalte/core/colors";
 import { trackDeep, trackStore } from "@solid-primitives/deep";
 import { trimAndLowercase } from "~/lib/utils/strings";
 import { createTodo } from "../api/createTodo";
-import { setTodoFormStore, todoFormStore } from "./todoFormStore";
+import { closeTodoForm, setTodoFormStore, todoFormStore } from "./todoFormStore";
 import { updateTodoMutation } from "../api/updateTodoMutation";
 import z from "zod";
 
@@ -30,7 +30,7 @@ type FormData = CreateTodoPayload & {
 
 // NOTE: Not the best form and a lot can be improved but it gets the job done
 export function TodoForm() {
-  const [formData, setFormData] = createStore<FormData>(todoFormStore.todoData);
+  const [formData, setFormData] = createStore<FormData>(todoFormStore.todoData as FormData);
   const [formErrors, setFormErrors] = createStore<Partial<Todo>>({});
   const [formTouched, setFormTouched] = createStore<Partial<Record<keyof Todo, boolean>>>({});
 
@@ -108,6 +108,7 @@ export function TodoForm() {
   // NOTE: Probably a much better way to do this
   const getFormData = () => trackDeep(formData);
   const getFormTouched = () => trackDeep(formTouched);
+
   // Form Validation
   createEffect(() => {
     const formData = unwrap(getFormData());
@@ -128,17 +129,20 @@ export function TodoForm() {
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault()
-    const data = unwrap(formData);
-    // data.color = data.color.toString("hex") as unknown as Color;
-    const { success, error } = todoPayloadSchema.safeParse(data)
-    try {
-      if (success)
-        if (todoFormStore.formType === "create")
-          await createTodo({
-            body: data as unknown as Todo
-          })
-      if (todoFormStore.formType === "update") {
 
+    const data = unwrap(formData);
+    const { success, error } = todoPayloadSchema.safeParse(data)
+    if (!success) {
+      return;
+    }
+
+    try {
+      if (todoFormStore.formType === "create") {
+        await createTodo({
+          body: data as unknown as Todo
+        })
+      }
+      if (todoFormStore.formType === "update") {
         z.number().parse(todoFormStore.todoData?.id!)
         await updateTodoMutation({
           id: todoFormStore.todoData?.id as number,
@@ -146,11 +150,9 @@ export function TodoForm() {
         })
       }
     } catch (err) {
+      console.error(err)
     } finally {
-      setTodoFormStore({
-        formType: null,
-        todoData: undefined
-      })
+      closeTodoForm()
     }
   }
 
