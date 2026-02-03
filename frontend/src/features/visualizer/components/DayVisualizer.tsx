@@ -16,6 +16,7 @@ import { degreesToDate } from "../utils/date";
 import { Sunrise, Sun, Sunset, Moon, ChevronUp } from "lucide-solid";
 import { Accessor, createEffect, createMemo, createSignal, Show } from "solid-js";
 import { ClickEvent } from "~/lib/types";
+import { VisualizableTodo } from "../utils/types";
 
 const RADIUS = 170;
 const MAX_LAST_CLICK_DIFF_MS = 300;
@@ -24,8 +25,8 @@ const VIEW_HOURS = 6;
 const MAX_TOTAL_DEGREES = 360 * 2;
 
 interface Props {
-  todos: Accessor<Todo[]>;
-  onFormOpen?: (data: Pick<Todo, "startsAt" | "due">) => void;
+  todos: Accessor<VisualizableTodo[]>;
+  onFormOpen?: (data: VisualizableTodo) => void;
   onMoveDate?: (days: number) => void;
   currentDate?: Accessor<Date>;
 }
@@ -51,7 +52,7 @@ export function DayVisualizer({
     end: null,
   });
 
-  const newTodo = createMemo<Pick<Todo, "startsAt" | "due" | "color"> | null>(() => {
+  const newTodo = createMemo<VisualizableTodo | null>(() => {
     const { start, end } = createTodoDegrees()
     if (!start || !end) return null
     return {
@@ -128,6 +129,7 @@ export function DayVisualizer({
         due: degreesToDate(
           calcDegreesFrom(snapToStep(hours, step), "hours"),
         ).toISOString(),
+        color: "#4A90E2"
       });
       setCreateTodoDegrees({ start: null, end: null });
       return;
