@@ -10,5 +10,10 @@
 		"luf": "pnpm lint:unstaged:fix",
 		"buf": "pnpm biome:unstaged:fix",
 		"dev": "pnpm exec wails dev -tags webkit2_41"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"lefthook"
+		]
 	}
 }
