@@ -4,6 +4,6 @@
 		"lefthook": "^2.1.0"
 	},
 	"scripts": {
-		"lint": "biome check --write --staged"
+		"lint:unstaged:fix": "git diff --name-only --diff-filter=ACM | xargs -r biome check --write --unsafe"
 	}
 }
