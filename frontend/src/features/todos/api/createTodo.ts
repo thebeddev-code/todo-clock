@@ -1,8 +1,8 @@
 import { revalidate } from "@solidjs/router";
-import { api, createTypedQuery } from "~/lib/client";
+import { createTypedQuery } from "~/lib/client";
 
 export const createTodo = createTypedQuery<"/todos", "POST">(
-	async (options) => {
+	async (options, api) => {
 		await api.create("/todos", options);
 		revalidate("/todos");
 	},

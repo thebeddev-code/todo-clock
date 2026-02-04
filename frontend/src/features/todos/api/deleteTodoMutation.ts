@@ -1,8 +1,8 @@
 import { revalidate } from "@solidjs/router";
-import { api, createTypedQuery } from "~/lib/client";
+import { createTypedQuery } from "~/lib/client";
 
 export const deleteTodoMutation = createTypedQuery<"/todos/[id]", "DELETE">(
-	async (options) => {
+	async (options, api) => {
 		await api.delete(`/todos/${options.id}`);
 		revalidate("/todos");
 	},
