@@ -1,0 +1,8 @@
+pre-commit:
+  jobs:
+    - name: Format and lint
+      glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}"
+      exclude:
+        - "*/frontend/wailsjs/*"
+      run: pnpm dlx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
+      stage_fixed: true
