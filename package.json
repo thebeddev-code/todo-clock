@@ -8,6 +8,7 @@
 		"biome:unstaged:fix": "git diff --name-only --diff-filter=ACM | xargs -r biome check --write --unsafe",
 		"format": "biome format --write frontend/*",
 		"luf": "pnpm lint:unstaged:fix",
-		"buf": "pnpm biome:unstaged:fix"
+		"buf": "pnpm biome:unstaged:fix",
+		"dev": "pnpm exec wails dev -tags webkit2_41"
 	}
 }
