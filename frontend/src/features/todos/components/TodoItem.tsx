@@ -2,35 +2,16 @@ import { format } from "date-fns";
 import { X as Close, SquarePen } from "lucide-solid";
 import { Button } from "~/lib/components/ui/button";
 import type { ClickEvent, Todo } from "~/lib/types";
-import { deleteTodoMutation } from "../api/deleteTodoMutation";
 import { completeTodoMutation } from "../api/completeTodoMutation";
-import { setTodoFormStore } from "./todoFormStore";
+import { deleteTodoMutation } from "../api/deleteTodoMutation";
+import { openTodoForm } from "./todoFormStore";
 
 type Props = {
 	todo: Todo;
-	onShowExpandedView?: (id: number) => void;
 };
-export function TodoItem({ todo, onShowExpandedView }: Props) {
-	// const changeFormType = useTodoForm((state) => state.changeFormType);
-	// const { mutate: deleteTodo } = useDeleteTodo({
-	//   mutationConfig: {
-	//     onError: () => {
-	//       toast.error("Failed to delete todo");
-	//     },
-	//   },
-	// });
-	// const completeTodoMutation = useUpdateTodo({
-	//   mutationConfig: {
-	//     onError: () => {
-	//       toast.error("Failed to update todo");
-	//     },
-	//   },
-	// });
+export function TodoItem({ todo }: Props) {
 	function handleEditTodo() {
-		setTodoFormStore({
-			formType: "update",
-			todoData: todo,
-		});
+		openTodoForm("update", todo);
 	}
 	function handleCompleteTodo() {
 		if (todo.status === "completed") {
@@ -63,13 +44,7 @@ export function TodoItem({ todo, onShowExpandedView }: Props) {
 					opacity: "0.2",
 				}}
 			/>
-			<div
-				class="relative z-10 flex items-center justify-between gap-3 bg-transparent px-3 py-2 text-sm"
-				onClick={(e) => {
-					e.stopPropagation();
-					handleEditTodo();
-				}}
-			>
+			<div class="relative z-10 flex items-center justify-between gap-3 bg-transparent px-3 py-2 text-sm">
 				<button
 					type="button"
 					onClick={(e) => {
