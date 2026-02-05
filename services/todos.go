@@ -1,10 +1,22 @@
 package services
 
 import (
-	"strings"
-	"time"
-
 	"gorm.io/gorm"
+)
+
+type (
+	Status   string
+	Priority string
+)
+
+const (
+	StatusTodo       Status = "todo"
+	StatusInProgress Status = "in_progress"
+	StatusDone       Status = "done"
+
+	PriorityLow    Priority = "low"
+	PriorityMedium Priority = "medium"
+	PriorityHigh   Priority = "high"
 )
 
 type Todo struct {
@@ -13,8 +25,8 @@ type Todo struct {
 	Description    *string  `json:"description"`
 	Tags           []string `json:"tags" gorm:"serializer:json"`
 	Color          *string  `json:"color"`
-	Status         string   `json:"status"`
-	Priority       string   `json:"priority"`
+	Status         Status   `json:"status" gorm:"type:varchar(20)"`
+	Priority       Priority `json:"priority" gorm:"type:varchar(20)"`
 	StartsAt       *string  `json:"startsAt"`
 	Due            *string  `json:"due"`
 	UpdatedAt      *string  `json:"updatedAt"`
