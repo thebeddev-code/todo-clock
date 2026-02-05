@@ -14,7 +14,7 @@ const CREATE_TODO_DEFAULT_DATA = {
 	startsAt: new Date().toISOString(),
 	recurrenceRule: "",
 	monthlyDate: new Date().toString(),
-	color: "rgba(255,255,255,0)",
+	color: "rgb(0, 120, 255)",
 };
 
 export type FormTypes = "create" | "update" | null;
