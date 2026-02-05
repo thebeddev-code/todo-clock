@@ -1,34 +1,23 @@
-import {
-	createEffect,
-	createMemo,
-	createSignal,
-	For,
-	Show,
-	Switch,
-} from "solid-js";
+import { ColorSwatch } from "@kobalte/core/color-swatch";
+import { parseColor } from "@kobalte/core/colors";
+import { Select } from "@kobalte/core/select";
+import { TextField } from "@kobalte/core/text-field";
+import { trackDeep } from "@solid-primitives/deep";
+import { format, formatDate, set } from "date-fns";
+import { createEffect, createMemo, Show } from "solid-js";
+import { createStore, unwrap } from "solid-js/store";
+import z from "zod";
+import { TagsField } from "~/lib/components/ui/form/tags-field";
 import {
 	type CreateTodoPayload,
 	todoPayloadSchema,
 } from "~/lib/schemas/todo.schema";
-import { createStore, unwrap } from "solid-js/store";
-import { TextField } from "@kobalte/core/text-field";
-import { Select } from "@kobalte/core/select";
-import { ColorSwatch } from "@kobalte/core/color-swatch";
-import { format, formatDate, parse, set } from "date-fns";
-import { TagsField } from "~/lib/components/ui/form/tags-field";
 import type { BlurEvent, Todo } from "~/lib/types";
-import { DEFAULT_TAGS, WEEKDAYS } from "../lib/constants";
-import { Color, parseColor } from "@kobalte/core/colors";
-import { trackDeep, trackStore } from "@solid-primitives/deep";
 import { trimAndLowercase } from "~/lib/utils/strings";
 import { createTodo } from "../api/createTodo";
-import {
-	closeTodoForm,
-	setTodoFormStore,
-	todoFormStore,
-} from "./todoFormStore";
 import { updateTodoMutation } from "../api/updateTodoMutation";
-import z from "zod";
+import { DEFAULT_TAGS, WEEKDAYS } from "../lib/constants";
+import { closeTodoForm, todoFormStore } from "./todoFormStore";
 
 /*
  * TODO: Sync starts at and due fields when setting starts at field
@@ -72,7 +61,7 @@ export function TodoForm() {
 			setFormData((data) => ({
 				...data,
 				[fieldName]: set(data.startsAt as string, {
-					hours: Number.parseInt(h) as number,
+					hours: Number.parseInt(h, 10) as number,
 					minutes: Number.parseFloat(m) as number,
 				}).toISOString(),
 			}));
@@ -157,6 +146,7 @@ export function TodoForm() {
 		const data = unwrap(formData);
 		const { success, error } = todoPayloadSchema.safeParse(data);
 		if (!success) {
+			console.log(error);
 			return;
 		}
 
@@ -167,7 +157,7 @@ export function TodoForm() {
 				});
 			}
 			if (todoFormStore.formType === "update") {
-				z.number().parse(todoFormStore.todoData?.id!);
+				z.number().parse(todoFormStore.todoData?.id);
 				await updateTodoMutation({
 					id: todoFormStore.todoData?.id as number,
 					body: data as unknown as Todo,
@@ -185,7 +175,6 @@ export function TodoForm() {
 			autocomplete="off"
 			onSubmit={handleSubmit}
 			class="flex flex-col gap-6 bg-white p-8 mx-auto"
-			onClick={(e) => e.stopPropagation()}
 		>
 			<header>
 				<h2 class="text-xl font-bold text-slate-800">Create New Task</h2>
