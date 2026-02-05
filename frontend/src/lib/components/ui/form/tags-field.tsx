@@ -1,10 +1,9 @@
-import { TextField } from "@kobalte/core/text-field";
-import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
-import { cn } from "~/lib/utils/cn";
-import { Plus, X } from "lucide-solid";
 import { Button } from "@kobalte/core/button";
-import { FocusOutsideEvent } from "@kobalte/core/src/index.jsx";
+import { TextField } from "@kobalte/core/text-field";
+import { X } from "lucide-solid";
+import { createEffect, createMemo, createSignal, For, Show } from "solid-js";
 import type { BlurEvent } from "~/lib/types";
+import { cn } from "~/lib/utils/cn";
 
 /*
  * DONE: Improve visual styles e.g the clear button
@@ -59,7 +58,7 @@ export function TagsField(props: Props) {
 		const trimmedTag = tag.trim();
 		if (!trimmedTag || trimmedTag.length > maxTagLength) return;
 
-		const duplicateTagIndex = currentTags.findIndex((t) => t === trimmedTag);
+		const duplicateTagIndex = currentTags.indexOf(trimmedTag);
 		// Skip duplicates
 		if (duplicateTagIndex !== -1) {
 			setInputValue("");
@@ -160,6 +159,7 @@ export function TagsField(props: Props) {
 							{tag.slice(0, 50)}
 							{tag.length > 50 ? "..." : ""}
 							<button
+								type="button"
 								onClick={createRemoveTagClickHandler(i())}
 								class="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-black/20"
 								aria-label={`Remove ${tag}`}
@@ -221,18 +221,19 @@ export function TagsField(props: Props) {
 				<div class="absolute top-full left-0 mt-1 w-full min-w-30 max-h-60 overflow-y-auto bg-white rounded-md shadow-lg border border-gray-200 z-50">
 					<For each={suggestions()}>
 						{(s, i) => (
-							<span
+							<button
 								onClick={() => addTag(s, props.value, props.onChange)}
 								class={cn(
-									"block px-3 py-2 text-sm text-gray-700",
+									"w-full text-left block px-3 py-2 text-sm text-gray-700",
 									"hover:bg-blue-50 cursor-pointer transition-colors duration-150",
 									{
 										"bg-blue-200": i() === 0,
 									},
 								)}
+								type="button"
 							>
 								{s}
-							</span>
+							</button>
 						)}
 					</For>
 				</div>{" "}
