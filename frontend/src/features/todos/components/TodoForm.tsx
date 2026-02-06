@@ -8,6 +8,7 @@ import { createEffect, createMemo, Show } from "solid-js";
 import { createStore, unwrap } from "solid-js/store";
 import z from "zod";
 import { TagsField } from "~/lib/components/ui/form/tags-field";
+import { toast } from "~/lib/components/ui/toast/toast";
 import {
 	type CreateTodoPayload,
 	todoPayloadSchema,
@@ -152,16 +153,30 @@ export function TodoForm() {
 
 		try {
 			if (todoFormStore.formType === "create") {
-				await createTodo({
-					body: data as unknown as Todo,
-				});
+				toast.promise(
+					createTodo({
+						body: data as unknown as Todo,
+					}),
+					{
+						loading: "Creating activity",
+						error: "Failed to create an activity",
+						success: "Created an activity",
+					},
+				);
 			}
 			if (todoFormStore.formType === "update") {
 				z.number().parse(todoFormStore.todoData?.id);
-				await updateTodoMutation({
-					id: todoFormStore.todoData?.id as number,
-					body: data as unknown as Todo,
-				});
+				toast.promise(
+					updateTodoMutation({
+						id: todoFormStore.todoData?.id as number,
+						body: data as unknown as Todo,
+					}),
+					{
+						loading: "Updating activity",
+						error: "Failed to update an activity",
+						success: "Updated an activity",
+					},
+				);
 			}
 		} catch (err) {
 			console.error(err);
