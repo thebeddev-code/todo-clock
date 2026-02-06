@@ -1,5 +1,38 @@
 @import "tailwindcss";
 
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+:root,
+html[data-theme="light"] {
+  --background: #fdfdfd;
+  --foreground: #282728;
+  --accent: #006cac;
+  --muted: #e6e6e6;
+  --border: #ece9e9;
+}
+html[data-theme="dark"] {
+  --background: #121212;  /* Darker background for a more immersive feel */
+  --foreground: #e0e0e0;  /* Softer foreground for better readability */
+  --accent: #ff5733;      /* Vibrant accent color for highlights */
+  --muted: #4e4e4e;       /* Darker muted color for contrast */
+  --border: #444;         /* Subtle gray border for depth */
+  --shadow: rgba(0, 0, 0, 0.5);  /* Shadow color for elevation effects */
+  
+  /* Optional: Additional variables for text styles */
+  --text-link: #ff6b01;   /* Link color */
+  --text-muted: #b0b0b0;   /* Muted text color */
+}
+
+@theme inline {
+  --font-app: var(--font-google-sans-code);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+}
+
 @theme {
 	--color-background: hsl(var(--background));
 	--color-foreground: hsl(var(--foreground));
