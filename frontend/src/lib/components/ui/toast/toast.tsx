@@ -1,9 +1,10 @@
 import { Toast, toaster } from "@kobalte/core/toast";
-import { X } from "lucide-solid";
+import { Check, X } from "lucide-solid";
 import { type Accessor, createMemo, type ParentProps } from "solid-js";
 import type { JSX } from "solid-js/jsx-runtime";
 import { Match, Show, Switch } from "solid-js/web";
 import { cn } from "~/lib/utils/cn";
+import { Spinner } from "../spinner";
 
 interface Props {
 	className?: string;
@@ -11,6 +12,7 @@ interface Props {
 	toastId: number;
 	showProgress?: Accessor<boolean>;
 }
+
 function ToastBase({
 	description,
 	className,
@@ -22,14 +24,14 @@ function ToastBase({
 		<Toast
 			toastId={toastId}
 			class={cn(
-				"flex flex-col gap-3 p-4 bg-linear-to-r from-white to-gray-50/50 border border-gray-200/50 shadow-lg rounded-lg backdrop-blur-sm",
+				"flex flex-col gap-3 p-4 bg-background border border-border/50 shadow-lg rounded-lg backdrop-blur-sm",
 				className,
 			)}
 		>
 			{/* Header */}
 			<div class="flex items-start w-full gap-3">
 				<div class="flex-1 min-w-0">
-					<Toast.Title class="font-semibold text-gray-900 text-base leading-tight truncate">
+					<Toast.Title class="font-semibold text-foreground text-base leading-tight truncate">
 						{children}
 					</Toast.Title>
 					<Show when={description}>
@@ -44,21 +46,21 @@ function ToastBase({
 			</div>
 
 			{/* Progress */}
-			<Show when={props.showProgress?.()}>
-				<Toast.ProgressTrack class="h-1.5 bg-gray-200/50 rounded-full overflow-hidden shadow-inner">
-					<Toast.ProgressFill
-						class="h-full bg-linear-to-r from-blue-500 to-indigo-600 rounded-sm
-          transition-all duration-200 ease-linear w-(--kb-toast-progress-fill-width)"
-					/>
-				</Toast.ProgressTrack>
-			</Show>
+			{/* <Show when={props.showProgress?.()}> */}
+			{/* 	<Toast.ProgressTrack class="h-1.5 bg-gray-200/50 rounded-full overflow-hidden shadow-inner"> */}
+			{/* 		<Toast.ProgressFill */}
+			{/* 			class="h-full bg-accent rounded-sm */}
+			{/*        transition-all duration-200 ease-linear w-(--kb-toast-progress-fill-width)" */}
+			{/* 		/> */}
+			{/* 	</Toast.ProgressTrack> */}
+			{/* </Show> */}
 		</Toast>
 	);
 }
 
 function show(
 	message: JSX.Element | string,
-	description: JSX.Element | string,
+	description?: JSX.Element | string,
 ) {
 	return toaster.show((props) => (
 		<ToastBase toastId={props.toastId} description={description}>
@@ -67,64 +69,102 @@ function show(
 	));
 }
 
-function success(message: string) {
+function success(
+	message: JSX.Element | string,
+	description?: JSX.Element | string,
+) {
 	return toaster.show((props) => (
-		<Toast
-			toastId={props.toastId}
-			class="flex flex-col items-center justify-between gap-2 border-2 border-gray-600 rounded-sm p-3 bg-white shadow-sm toast--success"
-		>
-			{message}
-		</Toast>
+		<ToastBase toastId={props.toastId} description={description}>
+			<span class="flex gap-2 items-center">
+				<Check class="size-6 text-(--success)" />
+				{message}
+			</span>
+		</ToastBase>
 	));
 }
-function error(message: string) {
+
+function error(
+	message: JSX.Element | string,
+	description?: JSX.Element | string,
+) {
 	return toaster.show((props) => (
-		<Toast
+		<ToastBase
+			class="border-(--error)"
 			toastId={props.toastId}
-			class="flex flex-col items-center justify-between gap-2 border-2 border-gray-600 rounded-sm p-3 bg-white shadow-sm toast--error"
+			description={description}
 		>
-			{message}
-		</Toast>
+			<span class="flex gap-2 items-center">
+				<X class="size-6 text-(--error)/50" />
+				{message}
+			</span>
+		</ToastBase>
 	));
 }
+
+type Renderable = JSX.Element | string;
 function promise<T, U>(
 	promise: Promise<T> | (() => Promise<T>),
 	options: {
-		loading?: JSX.Element | string;
-		success?: string | ((data: T) => JSX.Element);
-		error?: string | ((error: U) => JSX.Element);
-	},
+		loading?: Renderable;
+		success?: Renderable | ((data: T) => JSX.Element);
+		error?: Renderable | ((error: U) => JSX.Element);
+	} = {},
 ) {
+	const renderTitle = <D,>(
+		icon: JSX.Element,
+		text: Renderable | ((promiseResult: D) => JSX.Element),
+		data?: D,
+	): JSX.Element => {
+		if (typeof text === "string") {
+			return (
+				<span class="flex gap-2 items-center">
+					{icon}
+					{text}
+				</span>
+			);
+		}
+		if (typeof text === "function") {
+			return text(data!);
+		}
+		return text;
+	};
+
 	return toaster.promise(promise, (props) => (
 		<ToastBase
 			toastId={props.toastId}
 			class={cn({
-				"toast-loading": props.state === "pending",
-				"toast-success": props.state === "fulfilled",
-				"toast-error": props.state === "rejected",
+				"border-(--error)/50": props.state === "rejected",
 			})}
 			showProgress={createMemo(
 				() => props.state === "fulfilled" || props.state === "rejected",
 			)}
 		>
 			<Switch>
-				<Match when={props.state === "pending"}>{options.loading}</Match>
+				<Match when={props.state === "pending"}>
+					{renderTitle(<Spinner class="size-6 text-accent" />, options.loading)}
+				</Match>
 				<Match when={props.state === "fulfilled"}>
-					{typeof options.success === "string"
-						? options.success
-						: options.success?.(props.data)}
+					{renderTitle(
+						<Check class="size-6 text-(--success)" />,
+						options.success ?? "Success",
+						props.data,
+					)}
 				</Match>
 				<Match when={props.state === "rejected"}>
-					{typeof options.error === "string"
-						? options.error
-						: options.error?.(props.error)}
+					{renderTitle(
+						<X class="size-6 text-(--error)" />,
+						options.error ?? "Failed",
+						props.data as U,
+					)}{" "}
 				</Match>
 			</Switch>
 		</ToastBase>
 	));
 }
 function custom(jsx: () => JSX.Element) {
-	return toaster.show((props) => <Toast toastId={props.toastId}>{jsx}</Toast>);
+	return toaster.show((props) => (
+		<Toast toastId={props.toastId}>{jsx()}</Toast>
+	));
 }
 function dismiss(id: number) {
 	return toaster.dismiss(id);
