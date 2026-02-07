@@ -17,8 +17,7 @@ export default function Dashboard() {
 	const todos = createMemo(() => todosQueryResult() ?? []);
 
 	return (
-		<div class="flex">
-			<div class="w-50 h-dvh">Kinda sidebar</div>
+		<main class="w-full">
 			<main class="flex-1 h-dvh grid grid-cols-2">
 				{/* {status === "success" && todos && ( */}
 				<Show when={todosQueryResult()}>
@@ -53,6 +52,6 @@ export default function Dashboard() {
 				{/* {status === "success" && todos && <TodoList todos={todos} />} */}
 				<TodoFormDrawer />
 			</main>
-		</div>
+		</main>
 	);
 }
