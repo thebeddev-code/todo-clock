@@ -5,7 +5,7 @@
 :root,
 html[data-theme="light"] {
 	--background: #fdfdfd;
-	--foreground: #282728;
+	--foreground: #3a3a3a;
 	--accent: #006cac;
 	--muted: #e6e6e6;
 	--border: #ece9e9;
@@ -38,6 +38,7 @@ html[data-theme="dark"] {
 	--accent: #b574ff;
 	--accent-hover: #c58aff;
 	--accent-active: #9b5ae6;
+	--accent-destructive: hsl(0 84.2% 60.2%);
 
 	/* Neutrals */
 	--muted: #2a2139;

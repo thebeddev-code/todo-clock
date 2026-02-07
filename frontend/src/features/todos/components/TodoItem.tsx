@@ -36,7 +36,7 @@ export function TodoItem({ todo }: Props) {
 	const isCompleted = status === "completed";
 
 	return (
-		<div class="overflow-hidden relative bg-white rounded-md border border-gray-200 hover:border-gray-300 transition cursor-pointer">
+		<div class="overflow-hidden relative bg-background rounded-md border border-border/50 hover:border-(--accent-hover)/40 transition cursor-pointer">
 			<div
 				class="absolute h-40 w-40 rounded-full -top-10 -left-8"
 				style={{
@@ -53,7 +53,7 @@ export function TodoItem({ todo }: Props) {
 					}}
 					class={`flex h-4 w-4 items-center justify-center rounded border text-[10px] ${
 						isCompleted
-							? "border-emerald-500 bg-emerald-500 text-white"
+							? "border-(--success) bg-(--success) text-foreground"
 							: "border-gray-300 bg-white text-transparent"
 					}`}
 					aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
@@ -61,16 +61,14 @@ export function TodoItem({ todo }: Props) {
 					✓
 				</button>
 
-				<div class="flex min-w-0 flex-1 flex-col">
+				<div class="flex min-w-0 flex-1 flex-col font-bold">
 					<h3
-						class={`truncate text-sm ${
-							isCompleted ? "text-gray-400 line-through" : "text-gray-800"
-						}`}
+						class={`truncate text-sm text-foreground ${isCompleted && "line-through"}`}
 					>
 						{title}
 					</h3>
 
-					<div class="mt-0.5 flex items-center gap-2 text-[12px] text-gray-400">
+					<div class="mt-0.5 flex items-center gap-2 text-[12px] text-foreground/50">
 						{due && <span>{`${format(due, "MM/dd/yyyy")}`}</span>}
 						{startsAt && due && (
 							<span>
@@ -101,7 +99,7 @@ export function TodoItem({ todo }: Props) {
 					aria-label="Delete todo"
 					title="Delete todo"
 					size={"icon"}
-					class="h-6 w-6 p-1 text-slate-700/20 border-gray-200/70 shadow-none hover:border-red-500 hover:text-red-600 transition-colors"
+					class="h-6 w-6 p-1 text-foreground border-border/50 shadow-none hover:bg-background hover:border-border hover:text-(--error) transition-colors"
 					onClick={(e: ClickEvent<HTMLButtonElement>) => {
 						e.stopPropagation();
 						handleDeleteTodo();
@@ -114,7 +112,7 @@ export function TodoItem({ todo }: Props) {
 					aria-label="Edit todo"
 					title="Edit todo"
 					size={"icon"}
-					class="h-6 w-6 p-1 text-slate-700/20 border-gray-200/70 shadow-none hover:border-slate-500 hover:text-slate-600 transition-colors"
+					class="h-6 w-6 p-1 text-foreground border-border/50 shadow-none hover:bg-background hover:border-border hover:text-accent transition-colors"
 					onClick={(e: ClickEvent<HTMLButtonElement>) => {
 						e.stopPropagation();
 						handleEditTodo();

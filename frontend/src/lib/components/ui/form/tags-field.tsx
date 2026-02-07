@@ -136,8 +136,8 @@ export function TagsField(props: Props) {
 			onKeyDown={handleKeyDown}
 			class={cn(
 				"relative min-h-10 p-2 rounded-md",
-				"bg-background border border-border hover:border-primary/50 transition-colors",
-				"text-gray-800",
+				"bg-background border border-border hover:border-(--accent-hover) transition-colors",
+				"text-foreground",
 			)}
 			validationState={props.error ? "invalid" : "valid"}
 			aria-autocomplete="none"
@@ -148,10 +148,10 @@ export function TagsField(props: Props) {
 					{(tag, i) => (
 						<div
 							class={cn(
-								"select-none flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary",
-								" border border-primary/20 text-sm",
+								"select-none flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-foreground",
+								" border border-border/20 text-sm transition-colors duration-300",
 								{
-									"border border-red-400": duplicateTagIndex() === i(),
+									"border border-(--error)": duplicateTagIndex() === i(),
 								},
 							)}
 						>
@@ -161,7 +161,7 @@ export function TagsField(props: Props) {
 							<button
 								type="button"
 								onClick={createRemoveTagClickHandler(i())}
-								class="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-black/20"
+								class="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:text-(--error)"
 								aria-label={`Remove ${tag}`}
 							>
 								<X class="w-3 h-3" />
@@ -181,7 +181,7 @@ export function TagsField(props: Props) {
 					{/* Auto complete hint  */}
 					{/* FIXME: Autocomplete hint sucks */}
 					<Show when={!hideSuggestions()}>
-						<span class="absolute px-2 p-1 text-gray-300 text-sm select-none">
+						<span class="absolute px-2 p-1 text-foreground/50 text-sm select-none">
 							{suggestions()[0] ?? ""}
 						</span>
 					</Show>
@@ -200,13 +200,13 @@ export function TagsField(props: Props) {
 
 				{/* Buttons */}
 				<Button
-					class="hover:bg-blue-400 hover:text-white p-1 rounded-sm transition-colors duration-200"
+					class="hover:bg-(--accent-hover) hover:text-background text-foreground p-1 rounded-sm transition-colors duration-200"
 					onClick={() => addTag(inputValue(), props.value, props.onChange)}
 				>
 					Add
 				</Button>
 				<Button
-					class="hover:bg-destructive/70 hover:text-white p-1 rounded-sm transition-colors duration-200"
+					class="hover:bg-(--accent-destructive) hover:text-background text-foreground p-1 rounded-sm transition-colors duration-200"
 					onClick={handleClearTags}
 				>
 					Clear
@@ -218,16 +218,19 @@ export function TagsField(props: Props) {
 			</TextField.ErrorMessage>
 			{/* Suggestions */}
 			<Show when={suggestions().length > 0 && !hideSuggestions()}>
-				<div class="absolute top-full left-0 mt-1 w-full min-w-30 max-h-60 overflow-y-auto bg-white rounded-md shadow-lg border border-gray-200 z-50">
+				<div
+					class="absolute top-full left-0 mt-1 w-full min-w-30 max-h-60 overflow-y-auto bg-background 
+					rounded-md shadow-lg border border-border z-50"
+				>
 					<For each={suggestions()}>
 						{(s, i) => (
 							<button
 								onClick={() => addTag(s, props.value, props.onChange)}
 								class={cn(
-									"w-full text-left block px-3 py-2 text-sm text-gray-700",
-									"hover:bg-blue-50 cursor-pointer transition-colors duration-150",
+									"w-full text-left block px-3 py-2 text-sm text-foreground",
+									" hover:text-accent cursor-pointer transition-colors duration-150",
 									{
-										"bg-blue-200": i() === 0,
+										"text-(--accent-hover)": i() === 0,
 									},
 								)}
 								type="button"

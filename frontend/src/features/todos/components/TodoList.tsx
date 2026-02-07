@@ -7,8 +7,19 @@ import { openTodoForm } from "./todoFormStore";
 
 export function TodoList({ todos }: { todos: Accessor<Todo[]> }) {
 	return (
-		<section class="flex h-dvh w-full flex-col gap-2 overflow-y-auto rounded-lg bg-gray-50 p-4 border border-gray-200">
-			<ul>
+		<section class="h-dvh w-full overflow-y-auto bg-background p-4 border-l border-border">
+			<div class="flex justify-center mb-4">
+				<Button
+					variant="secondary"
+					class="transition-colors duration-200 w-30 border hover:bg-(--accent-hover) bg-muted border-border 
+					text-foreground hover:border-accent hover:text-background shadow-none"
+					onClick={() => openTodoForm("create")}
+				>
+					<Plus />
+				</Button>
+			</div>
+
+			<ul class="flex flex-col gap-4">
 				<For each={todos()}>
 					{(item) => (
 						<li
@@ -28,16 +39,6 @@ export function TodoList({ todos }: { todos: Accessor<Todo[]> }) {
 					)}
 				</For>
 			</ul>
-
-			<div class="flex justify-center">
-				<Button
-					variant="secondary"
-					class="w-30 border hover:border-blue-500"
-					onClick={() => openTodoForm("create")}
-				>
-					<Plus class="text-slate-800" />
-				</Button>
-			</div>
 		</section>
 	);
 }

@@ -34,8 +34,9 @@ export function TodoFormDrawer() {
 			{/* Drawer content */}
 			<div
 				class={cn(
-					"relative w-1/2 max-h-dvh overflow-y-auto bg-white dark:bg-gray-900 shadow-2xl",
+					"relative w-1/2 max-h-dvh overflow-y-auto bg-background shadow-2xl",
 					"transition-transform duration-400 ease-in-out",
+					"border-l border-border/50",
 					{
 						"translate-x-0": todoFormStore.formType,
 						"translate-x-full": !todoFormStore.formType,
@@ -43,7 +44,7 @@ export function TodoFormDrawer() {
 				)}
 			>
 				<Show when={todoFormStore.formType}>
-					<header class="sticky top-0 z-10 p-6 border-b bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+					<header class="sticky top-0 z-10 p-6 border-b bg-background text-foreground backdrop-blur-sm">
 						<div class="flex items-center justify-between">
 							<h2 id="todo-heading" class="text-2xl font-bold">
 								{todoFormStore.formType === "update" ? "Edit Todo" : "New Todo"}
