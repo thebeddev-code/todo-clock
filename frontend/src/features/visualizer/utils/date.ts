@@ -1,5 +1,5 @@
-import { DEGREES_PER_HOUR } from "./constants";
 import { addHours, set } from "date-fns";
+import { DEGREES_PER_HOUR } from "./constants";
 
 export function degreesToDate(degrees: number, startDate = new Date()) {
 	return addHours(

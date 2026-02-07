@@ -1,6 +1,3 @@
-import { createSignal } from "solid-js";
-import logo from "./assets/logo.svg";
-
 function App() {
 	return (
 		<main class="container">

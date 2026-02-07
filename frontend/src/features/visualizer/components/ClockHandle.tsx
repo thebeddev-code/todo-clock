@@ -1,11 +1,4 @@
 import { addHours, formatDate, set } from "date-fns";
-
-import { DEGREES_PER_HOUR } from "../utils/constants";
-import { cn } from "~/lib/utils";
-import { getCurrentTimeInDegrees, getMouseAngleInDegrees } from "../utils/math";
-
-import { ClockHandleTools } from "./ClockHandleTools";
-import type { ClickEvent } from "~/lib/types";
 import {
 	type Accessor,
 	createEffect,
@@ -13,6 +6,11 @@ import {
 	createSignal,
 	type JSXElement,
 } from "solid-js";
+import type { ClickEvent } from "~/lib/types";
+import { cn } from "~/lib/utils";
+import { DEGREES_PER_HOUR } from "../utils/constants";
+import { getCurrentTimeInDegrees, getMouseAngleInDegrees } from "../utils/math";
+import { ClockHandleTools } from "./ClockHandleTools";
 
 const HANDLE_BUTTON_SIZE_PX = 21;
 
@@ -143,6 +141,8 @@ export function ClockHandle({
 	}));
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: Clock handle must be interactive to adjust the visible activies time window
+		// biome-ignore lint/a11y/useKeyWithClickEvents: This isn't supposed to be interacted with keys
 		<div
 			class={cn(
 				"relative flex justify-center items-center",
@@ -156,10 +156,14 @@ export function ClockHandle({
 			}}
 			onMouseMove={handleMouseMove}
 		>
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: Clock handle must be interactive to adjust the visible activies time window */}
+			{/* biome-ignore lint/a11y/useKeyWithClickEvents: This isn't supposed to be interacted with keys */}
 			<div
 				style={clockHandleStyles()}
 				class={cn("z-10 absolute flex justify-start items-center")}
 			>
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: Clock handle must be interactive to adjust the visible activies time window */}
+				{/* biome-ignore lint/a11y/useKeyWithClickEvents: This isn't supposed to be interacted with keys */}
 				<div
 					onMouseDown={() => setMouseDown(true)}
 					onMouseEnter={() => setMouseEnter(true)}
